@@ -1,0 +1,2 @@
+rootProject.name='OBD2-app'
+include ':app'
