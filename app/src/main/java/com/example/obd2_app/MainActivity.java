@@ -30,5 +30,6 @@ public class MainActivity extends AppCompatActivity {
 
         AnyChartView anyChartView = (AnyChartView) findViewById(R.id.any_chart_view);
         anyChartView.setChart(pie);
+        System.out.println("coś");
     }
 }
