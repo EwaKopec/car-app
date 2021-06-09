@@ -11,7 +11,6 @@
         android:id="@+id/listView"
         android:layout_width="342dp"
         android:layout_height="290dp"
-        android:onClick="connectWithDevice"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"
@@ -36,35 +35,34 @@
         android:id="@+id/onbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="on"
+        android:layout_marginStart="32dp"
         android:text="ON"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.281"
+        app:layout_constraintEnd_toStartOf="@+id/visiblebutton"
+        app:layout_constraintHorizontal_bias="0.179"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.705"
+        app:layout_constraintVertical_bias="0.806"
         tools:ignore="MissingConstraints" />
 
     <Button
         android:id="@+id/offbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="off"
+        android:layout_marginEnd="32dp"
         android:text="OFF"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.708"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintHorizontal_bias="0.842"
+        app:layout_constraintStart_toEndOf="@+id/visiblebutton"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.705"
+        app:layout_constraintVertical_bias="0.806"
         tools:ignore="MissingConstraints" />
 
     <Button
         android:id="@+id/visiblebutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="visible"
         android:text="WIDOCZNY"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -77,7 +75,6 @@
         android:id="@+id/listbutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="list"
         android:text="ZNAJDŹ URZĄDZENIA"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,5 +83,15 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.932"
         tools:ignore="MissingConstraints" />
+
+    <TextView
+        android:id="@+id/text_msg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="MSG!!!"
+        app:layout_constraintBottom_toTopOf="@+id/visiblebutton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/listView" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
