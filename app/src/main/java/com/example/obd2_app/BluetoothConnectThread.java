@@ -11,6 +11,7 @@ public class BluetoothConnectThread extends Thread {
     private final BluetoothSocket socket;
     private final BluetoothDevice device;
 
+
     public BluetoothSocket getSocket() {
         return socket;
     }
