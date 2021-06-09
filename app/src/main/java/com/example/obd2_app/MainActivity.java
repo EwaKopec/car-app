@@ -91,11 +91,15 @@ public class MainActivity extends AppCompatActivity {
                 new TimeoutCommand(125).run(socket.getInputStream(), socket.getOutputStream());
                 new SelectProtocolCommand(ObdProtocols.AUTO).run(socket.getInputStream(), socket.getOutputStream());
                 new AmbientAirTemperatureCommand().run(socket.getInputStream(), socket.getOutputStream());
+                while(true)
+                {
+                    String info = socket.getInputStream().toString();
+                    Toast.makeText(getApplicationContext(), info,Toast.LENGTH_SHORT).show();
+                }
+
             } catch (Exception e) {
                 // handle errors
             }
         }
     }
-
-
 }
