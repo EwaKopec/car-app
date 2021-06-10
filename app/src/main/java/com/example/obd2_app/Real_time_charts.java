@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.regex.Pattern;
 
 import me.aflak.bluetooth.Bluetooth;
 import me.aflak.bluetooth.interfaces.DeviceCallback;
@@ -135,6 +136,20 @@ public class Real_time_charts extends AppCompatActivity {
         }
     };
 
+    private static Pattern WHITESPACE_PATTERN = Pattern.compile("\\s");
+    private static Pattern BUSINIT_PATTERN = Pattern.compile("(BUS INIT)|(BUSINIT)|(\\.)");
+    private static Pattern SEARCHING_PATTERN = Pattern.compile("SEARCHING");
+    private static Pattern DIGITS_LETTERS_PATTERN = Pattern.compile("([0-9A-F])+");
+
+    protected String replaceAll(Pattern pattern, String input, String replacement) {
+        return pattern.matcher(input).replaceAll(replacement);
+    }
+
+    protected String removeAll(Pattern pattern, String input) {
+        return pattern.matcher(input).replaceAll("");
+    }
+
+
     private void UpdateGUI() {
         myHandler.post(myRunnable);
     }
@@ -142,7 +157,21 @@ public class Real_time_charts extends AppCompatActivity {
     final Runnable myRunnable = new Runnable() {
         public void run() {
 
-            if (socket != null && socket.isConnected())
+            try {
+                AmbientAirTemperatureCommand command = new AmbientAirTemperatureCommand();
+                command.run(socket.getInputStream(), socket.getOutputStream());
+                String msg = command.getResult();
+                if (msg != null && !msg.isEmpty()) {
+                    textMSG.setText(msg);
+                    gauge.setSpeedAt(msg.length());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            if (socket != null && socket.isConnected() && false)
             {
                 try {
                     socket.getOutputStream().write(("01 05" + "\r").getBytes());
@@ -150,17 +179,38 @@ public class Real_time_charts extends AppCompatActivity {
                     e.printStackTrace();
                 }
 
-                byte[] buffer = new byte[512];  // buffer (our data)
-                int bytesCount; // amount of read bytes
+                String rawData = null;
+                int maxCount   = 6;        //Do testów, przy OBD można dać pow. 100
 
                 try {
                     //reading data from input stream
-                    bytesCount = socket.getInputStream().read(buffer);
+                    byte b = 0;
+                    int count = 0;
+                    StringBuilder res = new StringBuilder();
 
-                    if (buffer != null && bytesCount > 0) {
-                        textMSG.setText(new String(buffer, 0, bytesCount, StandardCharsets.US_ASCII));
-                        gauge.setSpeedAt(bytesCount);
+                    // read until '>' arrives OR end of stream reached
+                    char c;
+                    // -1 if the end of the stream is reached
+                    while (((b = (byte) socket.getInputStream().read()) > -1) && count <  maxCount) {
+                        c = (char) b;
+                        count++;
+                        if (c == '>') // read until '>' arrives
+                        {
+                            break;
+                        }
+                        res.append(c);
                     }
+
+                    rawData = removeAll(SEARCHING_PATTERN, res.toString());
+                    rawData = removeAll(WHITESPACE_PATTERN, rawData);//removes all [ \t\n\x0B\f\r]
+                    rawData = removeAll(BUSINIT_PATTERN, rawData);
+
+                    if (res != null && count > 0) {
+                        textMSG.setText(rawData);
+                        gauge.setSpeedAt(count);
+                    }
+
+
                 } catch (IOException e) {
                     //..
                 }
