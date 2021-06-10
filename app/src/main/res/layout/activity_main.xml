@@ -84,14 +84,4 @@
         app:layout_constraintVertical_bias="0.932"
         tools:ignore="MissingConstraints" />
 
-    <TextView
-        android:id="@+id/text_msg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="MSG!!!"
-        app:layout_constraintBottom_toTopOf="@+id/visiblebutton"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/listView" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

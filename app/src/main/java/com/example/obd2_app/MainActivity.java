@@ -33,23 +33,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private BluetoothAdapter bluetoothAdapter;
     private Bluetooth bluetooth;
     private List<BluetoothDevice> pairedDevices;
-    private List<BluetoothDevice> scannedDevices;
-    private List<BluetoothDevice> AllDevices = new ArrayList<>();
-
-    private BluetoothSocket socket = null;
 
     ListView lv;
     Button onButton, offButton, visibleButton, listButton;
-    TextView textMSG;
-    final Handler myHandler = new Handler();
-    String msg = "";
-
-    private boolean scanning = false;
-
-    private static final String  AddressList[] =
-            {
-                    //...
-            };
 
 
     @Override
@@ -62,7 +48,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         offButton = findViewById(R.id.offbutton);
         visibleButton = findViewById(R.id.visiblebutton);
         listButton = findViewById(R.id.listbutton);
-        textMSG = findViewById(R.id.text_msg);
         onButton.setOnClickListener(this);
         offButton.setOnClickListener(this);
         visibleButton.setOnClickListener(this);
@@ -84,34 +69,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetooth.setCallbackOnUI(this);
         bluetooth.setBluetoothCallback(bluetoothCallback);
         bluetooth.setDiscoveryCallback(discoveryCallback);
-        bluetooth.setDeviceCallback(deviceCallback);
 
-        scannedDevices = new ArrayList<>();
-        for (String address : AddressList)
-        {
-            if(BluetoothAdapter.checkBluetoothAddress(address))
-            {
-                BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
-                scannedDevices.add(device);
-            }
-        }
-
-        Timer myTimer = new Timer();
-        myTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {UpdateGUI();}
-        }, 0, 250);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         bluetooth.onStart();
-        if(bluetooth.isEnabled()){
-            //...
-        } else {
+        if(!bluetooth.isEnabled())
             bluetooth.showEnableDialog(MainActivity.this);
-        }
     }
 
     @Override
@@ -160,29 +126,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onDiscoveryStarted() {
             Toast.makeText(MainActivity.this, "Discovery Started !", Toast.LENGTH_SHORT).show();
-            scannedDevices = new ArrayList<>();
-            for (String address : AddressList)
-            {
-                if(BluetoothAdapter.checkBluetoothAddress(address))
-                {
-                    BluetoothDevice device = BluetoothAdapter.getDefaultAdapter().getRemoteDevice(address);
-                    scannedDevices.add(device);
-                }
-            }
-            scanning = true;
         }
 
         @Override
         public void onDiscoveryFinished() {
             Toast.makeText(MainActivity.this, "Discovery Finished !", Toast.LENGTH_SHORT).show();
-            scanning = false;
         }
 
         @Override
         public void onDeviceFound(BluetoothDevice device) {
             Toast.makeText(MainActivity.this, "Device Found !", Toast.LENGTH_SHORT).show();
-            scannedDevices.add(device);
-            updateList();
         }
 
         @Override
@@ -202,17 +155,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     };
 
     public void updateList(){
-        AllDevices = new ArrayList<>();
         pairedDevices = new ArrayList<>();
+        ArrayList list = new ArrayList();
         for (BluetoothDevice bt : bluetoothAdapter.getBondedDevices()){
             pairedDevices.add(bt);
-            AllDevices.add(bt);
+            list.add(bt.getName());
         }
-        for (BluetoothDevice bt : scannedDevices) AllDevices.add(bt);
 
-        ArrayList list = new ArrayList();
-        for(BluetoothDevice bt : AllDevices) list.add(bt.getName());
-        Toast.makeText(getApplicationContext(), "Showing Devices",Toast.LENGTH_SHORT).show();
         final ArrayAdapter adapter = new  ArrayAdapter(this,android.R.layout.simple_list_item_1, list);
         lv.setAdapter(adapter);
         lv.setOnItemClickListener(this);
@@ -242,7 +191,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void list(View v){
-        bluetooth.startScanning();
         updateList();
     }
 
@@ -270,108 +218,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Toast.makeText(getApplicationContext(), "Try to connect!",Toast.LENGTH_SHORT).show();
 
         if(bluetooth.isEnabled()) {
-            if (scanning) {
-                bluetooth.stopScanning();
-                scanning = false;
-            }
 
-            BluetoothDevice selectedDevice = AllDevices.get(position);
+            BluetoothDevice selectedDevice = pairedDevices.get(position);
 
-            boolean paired = false;
-
-            for(BluetoothDevice bt : pairedDevices){
-                if(bt.getAddress() == selectedDevice.getAddress()){
-                    paired = true;
-                    break;
-                }
-            }
-
-            if(!paired)
-                bluetooth.pair(selectedDevice);
-
-
-            if(!bluetooth.getPairedDevices().isEmpty()) {
+            if(!bluetooth.getPairedDevices().isEmpty() && selectedDevice != null) {
                 Intent intent = new Intent(this, Real_time_charts.class);
                 intent.putExtra("device", selectedDevice);
                 startActivity(intent);
-                bluetooth.connectToDevice(selectedDevice);
             }
 
         }
     }
-
-    private DeviceCallback deviceCallback = new DeviceCallback() {
-        @Override
-        public void onDeviceConnected(BluetoothDevice device) {
-            Toast.makeText(MainActivity.this, "Connected !", Toast.LENGTH_SHORT).show();
-            socket = bluetooth.getSocket();
-            if (socket != null && socket.isConnected())
-            {
-                try {
-                    //new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    //new LineFeedOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    //new TimeoutCommand(125).run(socket.getInputStream(), socket.getOutputStream());
-                    //new SelectProtocolCommand(ObdProtocols.AUTO).run(socket.getInputStream(), socket.getOutputStream());
-                    //new AmbientAirTemperatureCommand().run(socket.getInputStream(), socket.getOutputStream());
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-
-        @Override
-        public void onDeviceDisconnected(BluetoothDevice device, String message) {
-            Toast.makeText(MainActivity.this, "Device disconnected !", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onMessage(byte[] message) {
-            String str = new String(message);
-            Toast.makeText(MainActivity.this, "Message -> "+str, Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onError(int errorCode) {
-            Toast.makeText(MainActivity.this, "Error! -> "+errorCode, Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onConnectError(final BluetoothDevice device, String message) {
-            Toast.makeText(MainActivity.this, "Could not connect, next try in 3 sec...", Toast.LENGTH_SHORT).show();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bluetooth.connectToDevice(device);
-                }
-            }, 3000);
-        }
-    };
-
-    private void UpdateGUI() {
-        myHandler.post(myRunnable);
-    }
-
-    final Runnable myRunnable = new Runnable() {
-        public void run() {
-
-            if (socket != null && socket.isConnected())
-            {
-                byte[] buffer = new byte[512];  // buffer (our data)
-                int bytesCount; // amount of read bytes
-
-                try {
-                    //reading data from input stream
-                    bytesCount = socket.getInputStream().read(buffer);
-
-                    if (buffer != null && bytesCount > 0) {
-                        textMSG.setText(new String(buffer, 0, bytesCount, StandardCharsets.US_ASCII));
-                    }
-                } catch (IOException e) {
-                    //..
-                }
-            }
-
-        }
-    };
 
 }
