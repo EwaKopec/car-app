@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import com.github.anastr.speedviewlib.Gauge;
 import com.github.anastr.speedviewlib.Speedometer;
+import com.github.pires.obd.commands.protocol.EchoOffCommand;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -31,7 +32,6 @@ public class Real_time_charts extends AppCompatActivity {
 
     TextView textMSG;
     final Handler myHandler = new Handler();
-    String msg = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +53,7 @@ public class Real_time_charts extends AppCompatActivity {
         myTimer.schedule(new TimerTask() {
             @Override
             public void run() {UpdateGUI();}
-        }, 0, 250);
+        }, 0, 1000);
     }
 
     @Override
