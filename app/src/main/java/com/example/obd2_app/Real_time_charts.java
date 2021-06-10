@@ -12,6 +12,7 @@ import android.widget.Toast;
 import com.github.anastr.speedviewlib.Gauge;
 import com.github.anastr.speedviewlib.Speedometer;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
+import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -98,6 +99,8 @@ public class Real_time_charts extends AppCompatActivity {
                     //new TimeoutCommand(125).run(socket.getInputStream(), socket.getOutputStream());
                     //new SelectProtocolCommand(ObdProtocols.AUTO).run(socket.getInputStream(), socket.getOutputStream());
                     //new AmbientAirTemperatureCommand().run(socket.getInputStream(), socket.getOutputStream());
+                    //socket.getOutputStream().write(("01 46" + "\r").getBytes());
+
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -111,8 +114,8 @@ public class Real_time_charts extends AppCompatActivity {
 
         @Override
         public void onMessage(byte[] message) {
-            String str = new String(message);
-            Toast.makeText(Real_time_charts.this, "Message -> "+str, Toast.LENGTH_LONG).show();
+            //String str = new String(message);
+            //Toast.makeText(Real_time_charts.this, "Message -> "+str, Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -141,6 +144,12 @@ public class Real_time_charts extends AppCompatActivity {
 
             if (socket != null && socket.isConnected())
             {
+                try {
+                    socket.getOutputStream().write(("01 05" + "\r").getBytes());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
                 byte[] buffer = new byte[512];  // buffer (our data)
                 int bytesCount; // amount of read bytes
 
