@@ -13,6 +13,7 @@ import com.github.anastr.speedviewlib.Gauge;
 import com.github.anastr.speedviewlib.Speedometer;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
+import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -157,18 +158,21 @@ public class Real_time_charts extends AppCompatActivity {
     final Runnable myRunnable = new Runnable() {
         public void run() {
 
-            try {
-                AmbientAirTemperatureCommand command = new AmbientAirTemperatureCommand();
-                command.run(socket.getInputStream(), socket.getOutputStream());
-                String msg = command.getResult();
-                if (msg != null && !msg.isEmpty()) {
-                    textMSG.setText(msg);
-                    gauge.setSpeedAt(msg.length());
+            if (socket != null && socket.isConnected())
+            {
+                try {
+                    EngineCoolantTemperatureCommand  command = new EngineCoolantTemperatureCommand();
+                    command.run(socket.getInputStream(), socket.getOutputStream());
+                    String msg = command.getResult();
+                    if (msg != null && !msg.isEmpty()) {
+                        textMSG.setText(msg);
+                        gauge.setSpeedAt(msg.length());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
 
             if (socket != null && socket.isConnected() && false)
