@@ -16,20 +16,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.github.pires.obd.commands.protocol.EchoOffCommand;
-import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
-import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
-import com.github.pires.obd.commands.protocol.TimeoutCommand;
-import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
-import com.github.pires.obd.enums.ObdProtocols;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-
 
 import me.aflak.bluetooth.Bluetooth;
 import me.aflak.bluetooth.interfaces.BluetoothCallback;
@@ -299,9 +291,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
             if(!bluetooth.getPairedDevices().isEmpty()) {
-                //Intent intent = new Intent(this, RobotActivity.class);
-                //intent.putExtra("device", currentDevice);
-                //startActivity(intent);
+                Intent intent = new Intent(this, Real_time_charts.class);
+                intent.putExtra("device", selectedDevice);
+                startActivity(intent);
                 bluetooth.connectToDevice(selectedDevice);
             }
 
