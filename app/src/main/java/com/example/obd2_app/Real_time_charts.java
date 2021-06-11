@@ -158,7 +158,7 @@ public class Real_time_charts extends AppCompatActivity {
     final Runnable myRunnable = new Runnable() {
         public void run() {
 
-            if (socket != null && socket.isConnected())
+            if (socket != null && socket.isConnected() && false)
             {
                 try {
                     EngineCoolantTemperatureCommand  command = new EngineCoolantTemperatureCommand();
@@ -175,7 +175,7 @@ public class Real_time_charts extends AppCompatActivity {
                 }
             }
 
-            if (socket != null && socket.isConnected() && false)
+            if (socket != null && socket.isConnected())
             {
                 try {
                     socket.getOutputStream().write(("01 05" + "\r").getBytes());
@@ -184,7 +184,7 @@ public class Real_time_charts extends AppCompatActivity {
                 }
 
                 String rawData = null;
-                int maxCount   = 6;        //Do testów, przy OBD można dać pow. 100
+                int maxCount   = 100;        //Do testów, przy OBD można dać pow. 100
 
                 try {
                     //reading data from input stream
@@ -195,28 +195,31 @@ public class Real_time_charts extends AppCompatActivity {
                     // read until '>' arrives OR end of stream reached
                     char c;
                     // -1 if the end of the stream is reached
-                    while (((b = (byte) socket.getInputStream().read()) > -1) && count <  maxCount) {
-                        c = (char) b;
-                        count++;
-                        if (c == '>') // read until '>' arrives
-                        {
-                            break;
+                    if(socket.getInputStream().available()>0) {
+
+                        while (((b = (byte) socket.getInputStream().read()) > -1) && count < maxCount) {
+                            c = (char) b;
+                            count++;
+                            if (c == '>') // read until '>' arrives
+                            {
+                                break;
+                            }
+                            res.append(c);
                         }
-                        res.append(c);
-                    }
 
-                    rawData = removeAll(SEARCHING_PATTERN, res.toString());
-                    rawData = removeAll(WHITESPACE_PATTERN, rawData);//removes all [ \t\n\x0B\f\r]
-                    rawData = removeAll(BUSINIT_PATTERN, rawData);
+                        rawData = removeAll(SEARCHING_PATTERN, res.toString());
+                        rawData = removeAll(WHITESPACE_PATTERN, rawData);//removes all [ \t\n\x0B\f\r]
+                        rawData = removeAll(BUSINIT_PATTERN, rawData);
 
-                    if (res != null && count > 0) {
-                        textMSG.setText(rawData);
-                        gauge.setSpeedAt(count);
+                        if (res != null && count > 0) {
+                            textMSG.setText(rawData);
+                            gauge.setSpeedAt(count);
+                        }
                     }
 
 
                 } catch (IOException e) {
-                    //..
+                    Toast.makeText(Real_time_charts.this, "Error! -> "+e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
 
