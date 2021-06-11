@@ -158,28 +158,17 @@ public class Real_time_charts extends AppCompatActivity {
     final Runnable myRunnable = new Runnable() {
         public void run() {
 
-            if (socket != null && socket.isConnected() && false)
-            {
-                try {
-                    EngineCoolantTemperatureCommand  command = new EngineCoolantTemperatureCommand();
-                    command.run(socket.getInputStream(), socket.getOutputStream());
-                    String msg = command.getResult();
-                    if (msg != null && !msg.isEmpty()) {
-                        textMSG.setText(msg);
-                        gauge.setSpeedAt(msg.length());
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            Long responseDelayInMs = 50L;
 
             if (socket != null && socket.isConnected())
             {
                 try {
                     socket.getOutputStream().write(("01 05" + "\r").getBytes());
-                } catch (IOException e) {
+                    socket.getOutputStream().flush();
+                    if (responseDelayInMs != null && responseDelayInMs > 0) {
+                        Thread.sleep(responseDelayInMs);
+                    }
+                } catch (IOException | InterruptedException e) {
                     e.printStackTrace();
                 }
 
