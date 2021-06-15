@@ -78,9 +78,9 @@ public class Real_time_charts extends AppCompatActivity {
 
     void customizeSpeedometer(Speedometer s)
     {
-        s.setBackgroundCircleColor(Color.WHITE);
-        s.setSpeedTextColor(Color.GREEN);
-        s.setIndicatorLightColor(Color.MAGENTA);
+        s.setBackgroundCircleColor(getResources().getColor(R.color.colorAccent));
+        s.setSpeedTextColor(getResources().getColor(R.color.colorPrimaryDark));
+        s.setIndicatorLightColor(getResources().getColor(R.color.colorYellow));
         s.setStartDegree(0);
         s.setEndDegree(250);
     }
