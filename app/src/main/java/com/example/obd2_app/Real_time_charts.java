@@ -1,7 +1,5 @@
 package com.example.obd2_app;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
@@ -10,14 +8,12 @@ import android.os.Handler;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.anastr.speedviewlib.Gauge;
 import com.github.anastr.speedviewlib.Speedometer;
-import com.github.pires.obd.commands.protocol.EchoOffCommand;
-import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
-import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
@@ -96,15 +92,18 @@ public class Real_time_charts extends AppCompatActivity {
         s.setIndicatorLightColor(Color.MAGENTA);
         s.setStartDegree(0);
         s.setEndDegree(10);
+        s.setUnit("x1000RPM");
     }
 
     void customizeGauge(Gauge g)
     {
         g.setMinSpeed(60.0f);
         g.setMaxSpeed(120.0f);
+        g.setUnit("°C");
+
     }
 
-    private DeviceCallback deviceCallback = new DeviceCallback() {
+    private final DeviceCallback deviceCallback = new DeviceCallback() {
         @Override
         public void onDeviceConnected(BluetoothDevice device) {
             Toast.makeText(Real_time_charts.this, "Connected !", Toast.LENGTH_SHORT).show();
