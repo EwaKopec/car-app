@@ -24,6 +24,7 @@ import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
 import com.github.pires.obd.enums.ObdProtocols;
+import com.github.pires.obd.exceptions.ResponseException;
 
 import java.io.IOException;
 import java.util.Timer;
@@ -184,7 +185,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                     new LineFeedOffCommand().run(socket.getInputStream(), socket.getOutputStream());
                     new TimeoutCommand(250).run(socket.getInputStream(), socket.getOutputStream());
                     new SelectProtocolCommand(ObdProtocols.AUTO).run(socket.getInputStream(), socket.getOutputStream());
-                }catch (IOException | InterruptedException e) {
+                }catch ( ResponseException | IOException | InterruptedException e) {
                     //e.printStackTrace();
                     System.out.println(e.getMessage());
                 }
@@ -204,7 +205,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                                 com.command.run(socket.getInputStream(), socket.getOutputStream());
                                 com.data = com.command.getCalculatedResult();
                                 com.time = System.currentTimeMillis();
-                            } catch (IOException | InterruptedException e) {
+                            } catch ( ResponseException | IOException | InterruptedException e) {
                                 //e.printStackTrace();
                                 System.out.println(e.getMessage());
                             }
