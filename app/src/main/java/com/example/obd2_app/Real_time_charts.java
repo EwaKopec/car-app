@@ -5,8 +5,10 @@ import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -31,12 +33,15 @@ public class Real_time_charts extends AppCompatActivity {
     private BluetoothSocket socket = null;
 
     TextView textMSG;
+    private ViewFlipper viewFlipper;
     final Handler myHandler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_real_time_charts);
+
+        viewFlipper = findViewById(R.id.view_flipper);
 
         speedometer = findViewById(R.id.awesomeSpeedometer);
         turnover = findViewById(R.id.turnover);
@@ -101,6 +106,14 @@ public class Real_time_charts extends AppCompatActivity {
         g.setMaxSpeed(120.0f);
         g.setUnit("°C");
 
+    }
+
+    public void onPreviousClick(View v) {
+        viewFlipper.showPrevious();
+    }
+
+    public void onNextClick(View v) {
+        viewFlipper.showNext();
     }
 
     private final DeviceCallback deviceCallback = new DeviceCallback() {
