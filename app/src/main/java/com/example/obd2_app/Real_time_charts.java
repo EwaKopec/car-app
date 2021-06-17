@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.widget.TextView;
@@ -48,12 +49,15 @@ public class Real_time_charts extends AppCompatActivity
         turnover = findViewById(R.id.turnover);
         gauge = findViewById(R.id.gauge);
         textMSG = findViewById(R.id.text_msg);
-        gauge.setMaxSpeed(300.0f);
 
         device = getIntent().getParcelableExtra("device");
         //bluetooth = new Bluetooth(this);
         //bluetooth.setCallbackOnUI(this);
         //bluetooth.setDeviceCallback(deviceCallback);
+
+        customizeSpeedometer(speedometer);
+        customizeTurnover(turnover);
+        customizeGauge(gauge);
 
         Timer myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
@@ -84,14 +88,26 @@ public class Real_time_charts extends AppCompatActivity
 
     void customizeSpeedometer(Speedometer s)
     {
-        //s.setBackgroundCircleColor(2);
+        s.setBackgroundCircleColor(Color.WHITE);
+        s.setSpeedTextColor(Color.GREEN);
+        s.setIndicatorLightColor(Color.MAGENTA);
+        s.setStartDegree(0);
         s.setEndDegree(250);
-
     }
 
     void customizeTurnover(Speedometer s)
     {
+        s.setBackgroundCircleColor(Color.WHITE);
+        s.setSpeedTextColor(Color.GREEN);
+        s.setIndicatorLightColor(Color.MAGENTA);
+        s.setStartDegree(0);
+        s.setEndDegree(10);
+    }
 
+    void customizeGauge(Gauge g)
+    {
+        g.setMinSpeed(60.0f);
+        g.setMaxSpeed(120.0f);
     }
 
     private DeviceCallback deviceCallback = new DeviceCallback() {
