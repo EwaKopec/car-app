@@ -174,6 +174,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
 
+            /*
             if (socket != null && socket.isConnected()) {
                 try {
                     new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
@@ -184,7 +185,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                     //e.printStackTrace();
                     System.out.println(e.getMessage());
                 }
-            }
+            }*/
         }
 
         public void run()
