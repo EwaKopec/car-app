@@ -2,6 +2,7 @@ package com.example.obd2_app;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.os.Bundle;
@@ -11,21 +12,22 @@ import android.widget.Toast;
 
 import com.github.anastr.speedviewlib.Gauge;
 import com.github.anastr.speedviewlib.Speedometer;
-import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
 import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.UUID;
 import java.util.regex.Pattern;
 
 import me.aflak.bluetooth.Bluetooth;
 import me.aflak.bluetooth.interfaces.DeviceCallback;
 
 
-public class Real_time_charts extends AppCompatActivity {
+public class Real_time_charts extends AppCompatActivity
+{
     Speedometer speedometer, turnover;
     Gauge gauge;
 
@@ -35,6 +37,7 @@ public class Real_time_charts extends AppCompatActivity {
 
     TextView textMSG;
     final Handler myHandler = new Handler();
+    PrimeThread p;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,32 +51,35 @@ public class Real_time_charts extends AppCompatActivity {
         gauge.setMaxSpeed(300.0f);
 
         device = getIntent().getParcelableExtra("device");
-        bluetooth = new Bluetooth(this);
-        bluetooth.setCallbackOnUI(this);
-        bluetooth.setDeviceCallback(deviceCallback);
+        //bluetooth = new Bluetooth(this);
+        //bluetooth.setCallbackOnUI(this);
+        //bluetooth.setDeviceCallback(deviceCallback);
 
         Timer myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
             @Override
             public void run() {UpdateGUI();}
-        }, 0, 1000);
+        }, 0, 500);
+
+        p = new PrimeThread(Real_time_charts.this);
+        p.start();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        bluetooth.onStart();
-        bluetooth.connectToDevice(device);
+        //bluetooth.onStart();
+        //bluetooth.connectToDevice(device);
         Toast.makeText(Real_time_charts.this, "Connecting...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        if(bluetooth.isConnected()) {
-            bluetooth.disconnect();
-        }
-        bluetooth.onStop();
+        //if(bluetooth.isConnected()) {
+            //bluetooth.disconnect();
+        //}
+        //bluetooth.onStop();
     }
 
     void customizeSpeedometer(Speedometer s)
@@ -93,7 +99,9 @@ public class Real_time_charts extends AppCompatActivity {
         public void onDeviceConnected(BluetoothDevice device) {
             Toast.makeText(Real_time_charts.this, "Connected !", Toast.LENGTH_SHORT).show();
             socket = bluetooth.getSocket();
-            if (socket != null && socket.isConnected())
+            p = new PrimeThread(Real_time_charts.this);
+            p.start();
+            /*if (socket != null && socket.isConnected())
             {
                 try {
                     //new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
@@ -106,7 +114,7 @@ public class Real_time_charts extends AppCompatActivity {
                 } catch (Exception e) {
                     Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
-            }
+            }*/
         }
 
         @Override
@@ -116,8 +124,8 @@ public class Real_time_charts extends AppCompatActivity {
 
         @Override
         public void onMessage(byte[] message) {
-            //String str = new String(message);
-            //Toast.makeText(Real_time_charts.this, "Message -> "+str, Toast.LENGTH_LONG).show();
+            String str = new String(message);
+            Toast.makeText(Real_time_charts.this, "Message -> "+str, Toast.LENGTH_LONG).show();
         }
 
         @Override
@@ -137,20 +145,6 @@ public class Real_time_charts extends AppCompatActivity {
         }
     };
 
-    private static Pattern WHITESPACE_PATTERN = Pattern.compile("\\s");
-    private static Pattern BUSINIT_PATTERN = Pattern.compile("(BUS INIT)|(BUSINIT)|(\\.)");
-    private static Pattern SEARCHING_PATTERN = Pattern.compile("SEARCHING");
-    private static Pattern DIGITS_LETTERS_PATTERN = Pattern.compile("([0-9A-F])+");
-
-    protected String replaceAll(Pattern pattern, String input, String replacement) {
-        return pattern.matcher(input).replaceAll(replacement);
-    }
-
-    protected String removeAll(Pattern pattern, String input) {
-        return pattern.matcher(input).replaceAll("");
-    }
-
-
     private void UpdateGUI() {
         myHandler.post(myRunnable);
     }
@@ -158,37 +152,87 @@ public class Real_time_charts extends AppCompatActivity {
     final Runnable myRunnable = new Runnable() {
         public void run() {
 
-            Long responseDelayInMs = 50L;
+
+            socket = p.getSocket();
 
             if (socket != null && socket.isConnected())
             {
-                try {
-                    socket.getOutputStream().write(("01 05" + "\r").getBytes());
-                    socket.getOutputStream().flush();
-                    if (responseDelayInMs != null && responseDelayInMs > 0) {
-                        Thread.sleep(responseDelayInMs);
+                //socket.getOutputStream().write(("01 05" + "\r").getBytes());
+                //socket.getOutputStream().flush();
+
+                textMSG.setText(p.getData());
+                gauge.setSpeedAt(p.getData().length());
+            }
+
+        }
+    };
+
+    static class PrimeThread extends Thread
+    {
+        private static Pattern WHITESPACE_PATTERN = Pattern.compile("\\s");
+        private static Pattern BUSINIT_PATTERN = Pattern.compile("(BUS INIT)|(BUSINIT)|(\\.)");
+        private static Pattern SEARCHING_PATTERN = Pattern.compile("SEARCHING");
+        private static Pattern DIGITS_LETTERS_PATTERN = Pattern.compile("([0-9A-F])+");
+
+        Real_time_charts main;
+        BluetoothSocket socket;
+        String rawData = "...";
+        protected ArrayList<Integer> buffer = null;
+        private float temperature = 0.0f;
+
+        long lastPick = 0;
+        String tmp;
+
+        BluetoothAdapter myBluetooth;
+        static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+        PrimeThread(Real_time_charts activity){
+            main = activity;
+            this.buffer = new ArrayList<>();
+
+            myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
+            BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(main.device.getAddress());//connects to the device's address and checks if it's available
+            try {
+                socket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
+            try {
+                socket.connect();//start connection
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        public void run()
+        {
+            while(true)
+            {
+                if (socket != null && socket.isConnected())
+                {
+                    try {
+                        EngineCoolantTemperatureCommand com = new EngineCoolantTemperatureCommand ();
+                        com.run(socket.getInputStream(), socket.getOutputStream());
+                        tmp = com.getCalculatedResult();
+                        lastPick = System.currentTimeMillis();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException | InterruptedException e) {
-                    e.printStackTrace();
-                }
 
-                String rawData = null;
-                int maxCount   = 100;        //Do testów, przy OBD można dać pow. 100
+                    /*
+                    try {
+                        //reading data from input stream
+                        // read until '>' arrives OR end of stream reached
+                        StringBuilder res = new StringBuilder();
+                        byte b = 0;
+                        char c;
 
-                try {
-                    //reading data from input stream
-                    byte b = 0;
-                    int count = 0;
-                    StringBuilder res = new StringBuilder();
-
-                    // read until '>' arrives OR end of stream reached
-                    char c;
-                    // -1 if the end of the stream is reached
-                    if(socket.getInputStream().available()>0) {
-
-                        while (((b = (byte) socket.getInputStream().read()) > -1) && count < maxCount) {
+                        // -1 if the end of the stream is reached
+                        while ((b = (byte) socket.getInputStream().read()) > -1) {
                             c = (char) b;
-                            count++;
                             if (c == '>') // read until '>' arrives
                             {
                                 break;
@@ -200,19 +244,64 @@ public class Real_time_charts extends AppCompatActivity {
                         rawData = removeAll(WHITESPACE_PATTERN, rawData);//removes all [ \t\n\x0B\f\r]
                         rawData = removeAll(BUSINIT_PATTERN, rawData);
 
-                        if (res != null && count > 0) {
-                            textMSG.setText(rawData);
-                            gauge.setSpeedAt(count);
+                        if (rawData.length() > 6) {
+                            rawData = rawData.substring(rawData.length()-6,rawData.length());
                         }
+
+                        if(rawData.length() > 0) {
+                            fillBuffer();
+                            performCalculations();
+                            lastPick = System.currentTimeMillis();
+                        }
+
+                    } catch (IOException e) {
+                        Toast.makeText(main, "Error! -> " + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
+                    */
 
-
-                } catch (IOException e) {
-                    Toast.makeText(Real_time_charts.this, "Error! -> "+e.getMessage(), Toast.LENGTH_SHORT).show();
                 }
             }
-
         }
-    };
+
+        public String getData(){
+            return  tmp+"'F | TIME: "+String.valueOf(System.currentTimeMillis()-lastPick); //String.valueOf(temperature)+"'F | TIME: "+String.valueOf(System.currentTimeMillis()-lastPick);
+        }
+
+        public BluetoothSocket getSocket(){
+            return  socket;
+        }
+
+        protected void fillBuffer() {
+            rawData = rawData.replaceAll("\\s", ""); //removes all [ \t\n\x0B\f\r]
+            rawData = rawData.replaceAll("(BUS INIT)|(BUSINIT)|(\\.)", "");
+
+            if (rawData.matches("([0-9A-F])+")) {
+                //throw new NonNumericResponseException(rawData);
+                // read string each two chars
+                buffer.clear();
+                int begin = 0;
+                int end = 2;
+                while (end <= rawData.length()) {
+                    buffer.add(Integer.decode("0x" + rawData.substring(begin, end)));
+                    begin = end;
+                    end += 2;
+                }
+            }
+        }
+
+        protected void performCalculations() {
+            // ignore first two bytes [hh hh] of the response
+            temperature = buffer.get(2) - 40;
+        }
+
+        protected String replaceAll(Pattern pattern, String input, String replacement) {
+            return pattern.matcher(input).replaceAll(replacement);
+        }
+
+        protected String removeAll(Pattern pattern, String input) {
+            return pattern.matcher(input).replaceAll("");
+        }
+
+    }
 
 }

@@ -2,52 +2,44 @@ package com.example.obd2_app;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import me.aflak.bluetooth.Bluetooth;
 import me.aflak.bluetooth.interfaces.BluetoothCallback;
-import me.aflak.bluetooth.interfaces.DeviceCallback;
 import me.aflak.bluetooth.interfaces.DiscoveryCallback;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, ListView.OnItemClickListener
 {
-    private BluetoothAdapter bluetoothAdapter;
-    private Bluetooth bluetooth;
-    private List<BluetoothDevice> pairedDevices;
+    private BluetoothAdapter        bluetoothAdapter;
+    private Bluetooth               bluetooth;
+    private List<BluetoothDevice>   pairedDevices;
 
     ListView lv;
     Button onButton, offButton, visibleButton, listButton;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        lv = findViewById(R.id.listView);
-        onButton = findViewById(R.id.onbutton);
-        offButton = findViewById(R.id.offbutton);
-        visibleButton = findViewById(R.id.visiblebutton);
-        listButton = findViewById(R.id.listbutton);
+        lv              = findViewById(R.id.listView);
+        onButton        = findViewById(R.id.onbutton);
+        offButton       = findViewById(R.id.offbutton);
+        visibleButton   = findViewById(R.id.visiblebutton);
+        listButton      = findViewById(R.id.listbutton);
+
         onButton.setOnClickListener(this);
         offButton.setOnClickListener(this);
         visibleButton.setOnClickListener(this);
@@ -69,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetooth.setCallbackOnUI(this);
         bluetooth.setBluetoothCallback(bluetoothCallback);
         bluetooth.setDiscoveryCallback(discoveryCallback);
-
     }
 
     @Override
@@ -81,12 +72,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        bluetooth.onActivityResult(requestCode, resultCode);
-    }
-
-    @Override
     protected void onStop() {
         super.onStop();
         if(bluetooth.isConnected()) {
@@ -95,10 +80,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         bluetooth.onStop();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        bluetooth.onActivityResult(requestCode, resultCode);
+    }
+
     private BluetoothCallback bluetoothCallback = new BluetoothCallback() {
         @Override
         public void onBluetoothTurningOn() {
-            Toast.makeText(MainActivity.this, "Bluetooth TurningOn !", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Bluetooth Turning On !", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -108,7 +99,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onBluetoothTurningOff() {
-            Toast.makeText(MainActivity.this, "Bluetooth TurningOff !", Toast.LENGTH_SHORT).show();
+            Toast.makeText(MainActivity.this, "Bluetooth Turning Off !", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -167,47 +158,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lv.setOnItemClickListener(this);
     }
 
-    public void on(View v){
-        bluetooth.enable();
-        Toast.makeText(getApplicationContext(), "Turned on",Toast.LENGTH_LONG).show();
-        /*if (!bluetoothAdapter.isEnabled()) {
-            Intent turnOn = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(turnOn, 0);
-            Toast.makeText(getApplicationContext(), "Turned on",Toast.LENGTH_LONG).show();
-        } else {
-            Toast.makeText(getApplicationContext(), "Already on", Toast.LENGTH_LONG).show();
-        }*/
-    }
-
-    public void off(View v){
-        bluetooth.disable();
-        //bluetoothAdapter.disable();
-        Toast.makeText(getApplicationContext(), "Turned off" , Toast.LENGTH_LONG).show();
-    }
-
-    public  void visible(View v){
-        Intent getVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        startActivityForResult(getVisible, 0);
-    }
-
-    public void list(View v){
-        updateList();
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.onbutton:
-                on(v);
+                if (!bluetooth.isEnabled()) {
+                    bluetooth.enable();
+                }
                 break;
             case R.id.offbutton:
-               off(v);
+                bluetooth.disable();
                 break;
             case R.id.listbutton:
-                list(v);
+                updateList();
                 break;
             case R.id.visiblebutton:
-                visible(v);
+                Intent getVisible = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+                startActivityForResult(getVisible, 0);
                 break;
         }
     }
@@ -222,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             BluetoothDevice selectedDevice = pairedDevices.get(position);
 
             if(!bluetooth.getPairedDevices().isEmpty() && selectedDevice != null) {
-                Intent intent = new Intent(this, Real_time_charts.class);
+                Intent intent = new Intent(this, TestActivity.class);
                 intent.putExtra("device", selectedDevice);
                 startActivity(intent);
             }
