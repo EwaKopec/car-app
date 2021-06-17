@@ -28,9 +28,10 @@ public class Real_time_charts extends AppCompatActivity {
     Speedometer speedometer, turnover;
     Gauge gauge;
 
+    /*
     private Bluetooth bluetooth;
     private BluetoothDevice device;
-    private BluetoothSocket socket = null;
+    private BluetoothSocket socket = null;*/
 
     TextView textMSG;
     private ViewFlipper viewFlipper;
@@ -48,37 +49,40 @@ public class Real_time_charts extends AppCompatActivity {
         gauge = findViewById(R.id.gauge);
         textMSG = findViewById(R.id.text_msg);
 
+        /*
         device = getIntent().getParcelableExtra("device");
         bluetooth = new Bluetooth(this);
         bluetooth.setCallbackOnUI(this);
-        bluetooth.setDeviceCallback(deviceCallback);
+        bluetooth.setDeviceCallback(deviceCallback); */
 
         customizeSpeedometer(speedometer);
         customizeTurnover(turnover);
         customizeGauge(gauge);
 
+        /*
         Timer myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
             @Override
             public void run() {UpdateGUI();}
-        }, 0, 1000);
+        }, 0, 1000);  */
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        bluetooth.onStart();
-        bluetooth.connectToDevice(device);
-        Toast.makeText(Real_time_charts.this, "Connecting...", Toast.LENGTH_SHORT).show();
+        //bluetooth.onStart();
+        //bluetooth.connectToDevice(device);
+        //Toast.makeText(Real_time_charts.this, "Connecting...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        /*
         if(bluetooth.isConnected()) {
             bluetooth.disconnect();
         }
-        bluetooth.onStop();
+        bluetooth.onStop();*/
     }
 
     void customizeSpeedometer(Speedometer s)
@@ -120,6 +124,7 @@ public class Real_time_charts extends AppCompatActivity {
         viewFlipper.showNext();
     }
 
+    /*
     private final DeviceCallback deviceCallback = new DeviceCallback() {
         @Override
         public void onDeviceConnected(BluetoothDevice device) {
@@ -167,7 +172,7 @@ public class Real_time_charts extends AppCompatActivity {
                 }
             }, 3000);
         }
-    };
+    }; */
 
     private static Pattern WHITESPACE_PATTERN = Pattern.compile("\\s");
     private static Pattern BUSINIT_PATTERN = Pattern.compile("(BUS INIT)|(BUSINIT)|(\\.)");
@@ -182,7 +187,7 @@ public class Real_time_charts extends AppCompatActivity {
         return pattern.matcher(input).replaceAll("");
     }
 
-
+    /*
     private void UpdateGUI() {
         myHandler.post(myRunnable);
     }
@@ -246,5 +251,6 @@ public class Real_time_charts extends AppCompatActivity {
 
         }
     };
+    */
 
 }
