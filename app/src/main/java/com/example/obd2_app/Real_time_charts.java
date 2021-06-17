@@ -109,10 +109,14 @@ public class Real_time_charts extends AppCompatActivity {
     }
 
     public void onPreviousClick(View v) {
+        viewFlipper.setInAnimation(this, R.anim.slide_in_right);
+        viewFlipper.setOutAnimation(this, R.anim.slide_out_left);
         viewFlipper.showPrevious();
     }
 
     public void onNextClick(View v) {
+        viewFlipper.setInAnimation(this, android.R.anim.slide_out_right);
+        viewFlipper.setOutAnimation(this, android.R.anim.slide_in_left);
         viewFlipper.showNext();
     }
 
