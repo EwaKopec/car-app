@@ -148,6 +148,9 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     {
         boolean isWorking = true;
         long    lastRead  = System.currentTimeMillis();
+        long    loop      = System.currentTimeMillis();
+
+        private final long PERIOD = 500; //ms
 
         final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
@@ -174,46 +177,48 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
 
-            /*
+
             if (socket != null && socket.isConnected()) {
                 try {
                     new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
                     new LineFeedOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    new TimeoutCommand(125).run(socket.getInputStream(), socket.getOutputStream());
+                    new TimeoutCommand(250).run(socket.getInputStream(), socket.getOutputStream());
                     new SelectProtocolCommand(ObdProtocols.AUTO).run(socket.getInputStream(), socket.getOutputStream());
                 }catch (IOException | InterruptedException e) {
                     //e.printStackTrace();
                     System.out.println(e.getMessage());
                 }
-            }*/
+            }
         }
 
         public void run()
         {
             while (isWorking)
             {
-                if (socket != null && socket.isConnected())
+                if(System.currentTimeMillis() - loop > PERIOD)
                 {
-                    for (CommandData com : CommandList)
-                    {
-                        try
-                        {
-                            com.command.run(socket.getInputStream(), socket.getOutputStream());
-                            com.data = com.command.getCalculatedResult();
+
+                    if (socket != null && socket.isConnected()) {
+                        for (CommandData com : CommandList) {
+                            try {
+                                com.command.run(socket.getInputStream(), socket.getOutputStream());
+                                com.data = com.command.getCalculatedResult();
+                                com.time = System.currentTimeMillis();
+                            } catch (IOException | InterruptedException e) {
+                                //e.printStackTrace();
+                                System.out.println(e.getMessage());
+                            }
+                        }
+                        lastRead = System.currentTimeMillis();
+
+                    } else {
+                        for (CommandData com : CommandList) {
+                            com.data = "OFF";
                             com.time = System.currentTimeMillis();
-                        } catch (IOException | InterruptedException e) {
-                            //e.printStackTrace();
-                            System.out.println(e.getMessage());
                         }
                     }
-                    lastRead = System.currentTimeMillis();
 
-                }else{
-                    for (CommandData com : CommandList)
-                    {
-                        com.data = "OFF";
-                        com.time = System.currentTimeMillis();
-                    }
+                    loop = System.currentTimeMillis();
                 }
             }
 
