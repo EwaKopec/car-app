@@ -15,18 +15,26 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.pires.obd.commands.ObdCommand;
+import com.github.pires.obd.commands.ObdMultiCommand;
 import com.github.pires.obd.commands.SpeedCommand;
 import com.github.pires.obd.commands.engine.OilTempCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
+import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
 import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
 import com.github.pires.obd.enums.ObdProtocols;
+import com.github.pires.obd.exceptions.NonNumericResponseException;
 import com.github.pires.obd.exceptions.ResponseException;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -37,7 +45,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tName1,tName2,tName3,tName4;
     private TextView tTime1,tTime2,tTime3,tTime4;
     private TextView tTitle;
-    private Button   bDisconnect;
+    private Button   bDisconnect, bStart, bStop, bReset;
 
     private BluetoothDevice device;
 
@@ -47,6 +55,9 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     private       long          myTimeDisconnector = System.currentTimeMillis();
 
     private final long          TIME_TO_STOP = 5000; //ms
+
+    private  List<ObdCommand> commands = new ArrayList<>();
+    private  List<Integer> periods     = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,10 +79,25 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         tTime4= findViewById(R.id.t_t_t4);
         bDisconnect= findViewById(R.id.t_b_disconnect);
         bDisconnect.setOnClickListener(this);
+        bStart= findViewById(R.id.t_b_start);
+        bStart.setOnClickListener(this);
+        bStop= findViewById(R.id.t_b_stop);
+        bStop.setOnClickListener(this);
+        bReset= findViewById(R.id.t_b_reset);
+        bReset.setOnClickListener(this);
 
         device = getIntent().getParcelableExtra("device");
 
-        myThread = new DataThread(device);
+        commands.add(new EngineCoolantTemperatureCommand());
+        commands.add(new FuelLevelCommand());
+        commands.add(new RPMCommand());
+        commands.add(new SpeedCommand());
+        periods.add(1000 );
+        periods.add(10000);
+        periods.add( 500 );
+        periods.add( 500 );
+
+        myThread = new DataThread(device, commands, periods);
         myThread.start();
 
         myTimer.schedule(new TimerTask() {
@@ -86,6 +112,15 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.t_b_disconnect:
                 this.finish();
                 break;
+            case R.id.t_b_start:
+                myThread.startNewMeasurement();
+                break;
+            case R.id.t_b_stop:
+                myThread.stopMeasurement();
+                break;
+            case R.id.t_b_reset:
+                myThread.resetMeasurement(commands, periods);
+                break;
         }
     }
 
@@ -98,6 +133,11 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onStop() {
         super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
         Toast.makeText(this, "Disconnected!", Toast.LENGTH_SHORT).show();
         myThread.turnOff();
     }
@@ -107,37 +147,50 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
      */
     private void UpdateGUI() {
         myHandler.post( new Runnable() {
-            public void run()
-            {
-                myTimeDisconnector = myThread.getLastReadTime();
+            public void run() {
 
-                if(System.currentTimeMillis()-myTimeDisconnector > TIME_TO_STOP)
-                {
+                myTimeDisconnector = myThread.getReadTime();
+                if (System.currentTimeMillis() - myTimeDisconnector > TIME_TO_STOP) {
                     TestActivity.this.finish();
                 }
 
-                if(!myThread.getSocket().isConnected()) {
-                    tTitle.setText("Disconnected!");
-                    tTitle.setTextColor(Color.RED);
+                if (myThread.isMeasurementWorking())
+                {
+                    if (!myThread.isConnected()) {
+                        tTitle.setText("Disconnected!");
+                        tTitle.setTextColor(Color.RED);
+                    } else {
+                        tTitle.setText("OBD - TEST");
+                        tTitle.setTextColor(Color.BLACK);
+                    }
+
+                    final List<DataThread.CommandData> CommandList = myThread.getData();
+                    tData1.setText(CommandList.get(0).currentData);
+                    tData2.setText(CommandList.get(1).currentData);
+                    tData3.setText(CommandList.get(2).currentData);
+                    tData4.setText(CommandList.get(3).currentData);
+                    tName1.setText(CommandList.get(0).commandName);
+                    tName2.setText(CommandList.get(1).commandName);
+                    tName3.setText(CommandList.get(2).commandName);
+                    tName4.setText(CommandList.get(3).commandName);
+                    tTime1.setText(String.valueOf(System.currentTimeMillis() - CommandList.get(0).lastPickTime) + " | " + String.valueOf(System.currentTimeMillis() - CommandList.get(0).stopTime));
+                    tTime2.setText(String.valueOf(System.currentTimeMillis() - CommandList.get(1).lastPickTime) + " | " + String.valueOf(System.currentTimeMillis() - CommandList.get(1).stopTime));
+                    tTime3.setText(String.valueOf(System.currentTimeMillis() - CommandList.get(2).lastPickTime) + " | " + String.valueOf(System.currentTimeMillis() - CommandList.get(2).stopTime));
+                    tTime4.setText(String.valueOf(System.currentTimeMillis() - CommandList.get(3).lastPickTime) + " | " + String.valueOf(System.currentTimeMillis() - CommandList.get(3).stopTime));
                 }else{
-                    tTitle.setText("OBD - TEST");
-                    tTitle.setTextColor(Color.BLACK);
+                    tData1.setText("0");
+                    tData2.setText("0");
+                    tData3.setText("0");
+                    tData4.setText("0");
+                    tName1.setText("0");
+                    tName2.setText("0");
+                    tName3.setText("0");
+                    tName4.setText("0");
+                    tTime1.setText("0");
+                    tTime2.setText("0");
+                    tTime3.setText("0");
+                    tTime4.setText("0");
                 }
-
-                final DataThread.CommandData CommandList[] = myThread.getData();
-
-                tData1.setText(CommandList[0].data);
-                tData2.setText(CommandList[1].data);
-                tData3.setText(CommandList[2].data);
-                tData4.setText(CommandList[3].data);
-                tName1.setText(CommandList[0].command.getName());
-                tName2.setText(CommandList[1].command.getName());
-                tName3.setText(CommandList[2].command.getName());
-                tName4.setText(CommandList[3].command.getName());
-                tTime1.setText( String.valueOf(System.currentTimeMillis()-CommandList[0].time) );
-                tTime2.setText( String.valueOf(System.currentTimeMillis()-CommandList[1].time) );
-                tTime3.setText( String.valueOf(System.currentTimeMillis()-CommandList[2].time) );
-                tTime4.setText( String.valueOf(System.currentTimeMillis()-CommandList[3].time) );
             }
         });
     }
@@ -147,80 +200,115 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     */
     class DataThread extends Thread
     {
-        boolean isWorking = true;
-        long    lastRead  = System.currentTimeMillis();
-        long    loop      = System.currentTimeMillis();
+        private final UUID myUUID           = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+        private final long LOOP_PERIOD      = 10; //ms
+        private final long PICK_THRESHOLD   = LOOP_PERIOD/5; //ms
+        private final int  TIMEOUT_COMMAND  = 250; //1/4ms 250 = 1000ms
+        private final ObdProtocols PROTOCOL = ObdProtocols.AUTO;
 
-        private final long PERIOD = 500; //ms
+        public final String ERROR_DATA_IN_SIZE = "Bad amount of data received ";
 
-        final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+        private boolean isWorking       = true;
+        private boolean isStopped       = false;
+        private boolean wait            = false;
+        private long    lastRead        = System.currentTimeMillis();
+        private long    lastLoop        = System.currentTimeMillis();
 
-        BluetoothSocket socket;
 
-        private final CommandData CommandList[] =
-                {
-                        new CommandData(new EngineCoolantTemperatureCommand()),
-                        new CommandData(new OilTempCommand()),
-                        new CommandData(new RPMCommand()),
-                        new CommandData(new SpeedCommand())
-                };
+        private BluetoothSocket   socket        = null;
+        private List<ObdCommand>  commandIO     = new ArrayList<>();
+        private List<CommandData> commandData   = new ArrayList<>();
+        private List<String>      lastErrors    = new ArrayList<>();
 
-        public DataThread(BluetoothDevice device)
+        public DataThread(BluetoothDevice device, List<ObdCommand> commands, List<Integer> periods)
         {
             try {
                 socket = device.createInsecureRfcommSocketToServiceRecord(myUUID);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
                 socket.connect();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
+                lastErrors.add(e.getMessage());
             }
 
+            int i = 0;
+            for (ObdCommand com : commands){
+                commandIO.add(com);
+                commandData.add(new CommandData(com.getName(),periods.get(i++)));
+            }
 
-            if (socket != null && socket.isConnected()) {
+            if (socket != null && socket.isConnected())
+            {
                 try {
                     new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
                     new LineFeedOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    new TimeoutCommand(250).run(socket.getInputStream(), socket.getOutputStream());
-                    new SelectProtocolCommand(ObdProtocols.AUTO).run(socket.getInputStream(), socket.getOutputStream());
+                    new TimeoutCommand(TIMEOUT_COMMAND).run(socket.getInputStream(), socket.getOutputStream());
+                    new SelectProtocolCommand(PROTOCOL).run(socket.getInputStream(), socket.getOutputStream());
                 }catch ( ResponseException | IOException | InterruptedException e) {
-                    //e.printStackTrace();
                     System.out.println(e.getMessage());
+                    lastErrors.add(e.getMessage());
                 }
             }
+
+            for (CommandData com : commandData){
+                com.startTime = System.currentTimeMillis();
+            }
+
+            lastRead = System.currentTimeMillis();
+            lastLoop = System.currentTimeMillis();
         }
 
         public void run()
         {
             while (isWorking)
             {
-                if(System.currentTimeMillis() - loop > PERIOD)
-                {
+                while (wait) {
+                    isStopped = true;
+                    lastRead = System.currentTimeMillis();
+                }
 
-                    if (socket != null && socket.isConnected()) {
-                        for (CommandData com : CommandList) {
+                if(System.currentTimeMillis() - lastLoop > LOOP_PERIOD)
+                {
+                    if (socket != null && socket.isConnected())
+                    {
+                        List<String> dataList = new ArrayList<>();
+
+                        for (ObdCommand com : commandIO) {
                             try {
-                                com.command.run(socket.getInputStream(), socket.getOutputStream());
-                                com.data = com.command.getCalculatedResult();
-                                com.time = System.currentTimeMillis();
-                            } catch ( ResponseException | IOException | InterruptedException e) {
-                                //e.printStackTrace();
+                                com.run(socket.getInputStream(), socket.getOutputStream());
+                                dataList.add(com.getFormattedResult());
+                            } catch (IndexOutOfBoundsException | NonNumericResponseException | ResponseException | IOException | InterruptedException e) {
                                 System.out.println(e.getMessage());
+                                lastErrors.add(e.getMessage());
+                                dataList.add("-1");
                             }
                         }
-                        lastRead = System.currentTimeMillis();
 
-                    } else {
-                        for (CommandData com : CommandList) {
-                            com.data = "OFF";
-                            com.time = System.currentTimeMillis();
+                        int i = 0;
+                        for (CommandData com : commandData) {
+                            com.currentData = dataList.get(i);
+                            com.lastPickTime = System.currentTimeMillis();
+                            if (com.lastPickTime - com.stopTime >= com.period - PICK_THRESHOLD) {
+                                com.data.add(com.currentData);
+                                com.stopTime = com.lastPickTime;
+                            }
+                            i++;
+                        }
+
+                        lastRead = System.currentTimeMillis();
+                    }
+                    else {
+                        for (CommandData com : commandData) {
+                            com.currentData = "-1";
+                            if (System.currentTimeMillis() - com.stopTime >= com.period - PICK_THRESHOLD) {
+                                com.data.add(com.currentData);
+                                com.stopTime = System.currentTimeMillis();
+                            }
                         }
                     }
-
-                    loop = System.currentTimeMillis();
+                    lastLoop = System.currentTimeMillis();
                 }
+
+                isStopped = false;
             }
 
             if (socket != null && socket.isConnected()) {
@@ -233,35 +321,107 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
         }
 
+        public void startNewMeasurement()
+        {
+            wait        = true;
+            while (!isStopped) {;};
+            for (CommandData com : commandData){
+                com.clearData();
+            }
+            lastErrors    = new ArrayList<>();
+            wait = false;
+        }
+
+        public void stopMeasurement()
+        {
+            wait = true;
+        }
+
+        public void resetMeasurement(List<ObdCommand> commands, List<Integer> periods)
+        {
+            wait        = true;
+            while (!isStopped) {;};
+            int i = 0;
+            commandIO    = new ArrayList<>();
+            commandData  = new ArrayList<>();
+            lastErrors   = new ArrayList<>();
+            for (ObdCommand com : commands){
+                commandIO.add(com);
+                commandData.add(new CommandData(com.getName(),periods.get(i++)));
+            }
+            for (CommandData com : commandData){
+                com.startTime = System.currentTimeMillis();
+            }
+            wait = false;
+        }
+
         public BluetoothSocket getSocket(){
             return  socket;
         }
 
-        public CommandData[] getData(){
-            return CommandList;
+        public boolean isConnected() {
+            return socket.isConnected();
         }
 
+        public boolean isThreadLive() {
+            return isWorking;
+        }
 
-        public long getLastReadTime(){
+        public boolean isMeasurementWorking() {
+            return !isStopped;
+        }
+
+        public List<CommandData> getData(){
+            return commandData;
+        }
+
+        public CommandData getData(int index){
+            return commandData.get(index);
+        }
+
+        public long getReadTime(){
             return lastRead;
         }
-
 
         public void turnOff(){
             isWorking = false;
         }
 
+        public List<String> getErrors(){
+            return lastErrors;
+        }
+
+        public String getLastError(){
+            return lastErrors.remove(lastErrors.size()-1);
+        }
+
         class CommandData
         {
-            public ObdCommand   command;
-            public String       data;
-            public long         time;
+            public String           commandName;
+            public List<String>     data;
+            public String           currentData;
+            public int              period;             //ms
+            public long             startTime;
+            public long             stopTime;
+            public long             lastPickTime;
 
-            CommandData(ObdCommand command)
+            CommandData(String command, int period)
             {
-                this.command = command;
-                data = "";
-                time = 0L;
+                this.data           = new ArrayList<>();
+                this.commandName    = command;
+                this.startTime      = System.currentTimeMillis();
+                this.stopTime       = System.currentTimeMillis();
+                this.period         = period;
+                this.currentData    = "";
+                this.lastPickTime   = System.currentTimeMillis();
+            }
+
+            public void clearData(){
+                this.data           = new ArrayList<>();
+                this.startTime      = System.currentTimeMillis();
+                this.stopTime       = System.currentTimeMillis();
+                this.currentData    = "";
+                this.lastPickTime   = System.currentTimeMillis();
             }
         }
 
