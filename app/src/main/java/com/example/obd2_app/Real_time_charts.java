@@ -30,13 +30,11 @@ import me.aflak.bluetooth.interfaces.DeviceCallback;
 public class Real_time_charts extends AppCompatActivity
 {
     Speedometer speedometer, turnover;
-    Gauge gauge;
 
     private Bluetooth bluetooth;
     private BluetoothDevice device;
     private BluetoothSocket socket = null;
 
-    TextView textMSG;
     final Handler myHandler = new Handler();
     PrimeThread p;
 
@@ -47,8 +45,6 @@ public class Real_time_charts extends AppCompatActivity
 
         speedometer = findViewById(R.id.awesomeSpeedometer);
         turnover = findViewById(R.id.turnover);
-        gauge = findViewById(R.id.gauge);
-        textMSG = findViewById(R.id.text_msg);
 
         device = getIntent().getParcelableExtra("device");
         //bluetooth = new Bluetooth(this);
@@ -57,7 +53,6 @@ public class Real_time_charts extends AppCompatActivity
 
         customizeSpeedometer(speedometer);
         customizeTurnover(turnover);
-        customizeGauge(gauge);
 
         Timer myTimer = new Timer();
         myTimer.schedule(new TimerTask() {
@@ -102,12 +97,6 @@ public class Real_time_charts extends AppCompatActivity
         s.setIndicatorLightColor(Color.MAGENTA);
         s.setStartDegree(0);
         s.setEndDegree(10);
-    }
-
-    void customizeGauge(Gauge g)
-    {
-        g.setMinSpeed(60.0f);
-        g.setMaxSpeed(120.0f);
     }
 
     private DeviceCallback deviceCallback = new DeviceCallback() {
@@ -175,9 +164,6 @@ public class Real_time_charts extends AppCompatActivity
             {
                 //socket.getOutputStream().write(("01 05" + "\r").getBytes());
                 //socket.getOutputStream().flush();
-
-                textMSG.setText(p.getData());
-                gauge.setSpeedAt(p.getData().length());
             }
 
         }
