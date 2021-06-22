@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class Real_time_charts extends AppCompatActivity
@@ -73,8 +75,8 @@ public class Real_time_charts extends AppCompatActivity
         commands.add(new FuelLevelCommand());
         commands.add(new RPMCommand());
         commands.add(new SpeedCommand());
-        periods.add(1000 );
-        periods.add(10000);
+        periods.add(1000);
+        periods.add(1000);
         periods.add( 500 );
         periods.add( 500 );
 
@@ -100,6 +102,16 @@ public class Real_time_charts extends AppCompatActivity
         myThread.turnOff();
     }
 
+    float findDigitis(String s)
+    {
+        Pattern p = Pattern.compile("\\d+");
+        Matcher m = p.matcher(s);
+        if(m.find()){
+            return Float.parseFloat(m.group(0));
+        }
+        else return 0.0f;
+    }
+
     private void UpdateGUI() {
         myHandler.post( new Runnable() {
             @SuppressLint("SetTextI18n")
@@ -113,10 +125,18 @@ public class Real_time_charts extends AppCompatActivity
                 if (myThread.isMeasurementWorking())
                 {
                     final List<Real_time_charts.DataThread.CommandData> CommandList = myThread.getData();
-                    speedometer.setSpeedAt(Float.parseFloat(CommandList.get(3).currentData));
-                    turnover.setSpeedAt(Float.parseFloat(CommandList.get(2).currentData));
-                    tempTV.setText(CommandList.get(0).currentData + "°C");
-                    fuelTV.setText(CommandList.get(1).currentData);
+                    if(!CommandList.isEmpty()) {
+                        String speed, rmp, fuel, temp;
+                        speed = CommandList.get(3).currentData;
+                        rmp = CommandList.get(2).currentData;
+                        fuel = CommandList.get(1).currentData;
+                        temp = CommandList.get(0).currentData;
+
+                        speedometer.setSpeedAt(findDigitis(speed));
+                        turnover.setSpeedAt(findDigitis(rmp));
+                        tempTV.setText(CommandList.get(0).currentData + "°C");
+                        fuelTV.setText(CommandList.get(1).currentData);
+                    }
 
 
                 }else{
