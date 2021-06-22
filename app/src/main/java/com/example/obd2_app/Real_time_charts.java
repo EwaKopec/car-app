@@ -234,11 +234,16 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         }
 
         if(!data.isEmpty()){
-            makeChart(period, data, name);
+            List<Float> dataFloat = null;
+            for(String i:data)
+            {
+                dataFloat.add(findDigitis(i));
+            }
+            makeChart(period, dataFloat, name);
         }
     }
 
-    void makeChart(int period, List<String> data, String name) {
+    void makeChart(int period, List<Float> data, String name) {
         Intent intent = new Intent(this, charts.class);
         intent.putExtra("name", name);
         intent.putExtra("period", period);

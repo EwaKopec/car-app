@@ -17,7 +17,7 @@ import java.util.List;
 public class charts extends AppCompatActivity {
     String name;
     int period;
-    List<String> data;
+    List<Float> data;
     LineChart chart;
     TextView nameOfChart;
 
@@ -40,8 +40,8 @@ public class charts extends AppCompatActivity {
     public void createChart()
     {
         List<Entry> entries = new ArrayList<Entry>();
-        for(String i:data){
-            entries.add(new Entry(period, Float.parseFloat(i)));
+        for(Float i:data){
+            entries.add(new Entry(period, i));
             period += period;
         }
 
