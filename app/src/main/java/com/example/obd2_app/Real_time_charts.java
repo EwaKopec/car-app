@@ -129,13 +129,13 @@ public class Real_time_charts extends AppCompatActivity
                         String speed, rmp, fuel, temp;
                         speed = CommandList.get(3).currentData;
                         rmp = CommandList.get(2).currentData;
-                        fuel = CommandList.get(1).currentData;
-                        temp = CommandList.get(0).currentData;
+                        fuel = String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData), "%");
+                        temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData), "°C");
 
                         speedometer.setSpeedAt(findDigitis(speed));
-                        turnover.setSpeedAt(findDigitis(rmp));
-                        tempTV.setText(CommandList.get(0).currentData + "°C");
-                        fuelTV.setText(CommandList.get(1).currentData);
+                        turnover.setSpeedAt(findDigitis(rmp)/1000.0F);
+                        tempTV.setText(temp);
+                        fuelTV.setText(fuel);
                     }
 
 
@@ -241,7 +241,7 @@ public class Real_time_charts extends AppCompatActivity
                         for (ObdCommand com : commandIO) {
                             try {
                                 com.run(socket.getInputStream(), socket.getOutputStream());
-                                dataList.add(com.getFormattedResult());
+                                dataList.add(com.getCalculatedResult()); //Formatted->Calculated
                             } catch (IndexOutOfBoundsException | NonNumericResponseException | ResponseException | IOException | InterruptedException e) {
                                 System.out.println(e.getMessage());
                                 lastErrors.add(e.getMessage());
