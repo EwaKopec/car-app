@@ -16,8 +16,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="81dp"
-        android:layout_marginBottom="468dp" />
+        android:layout_marginEnd="434dp"
+        android:layout_marginBottom="68dp" />
 
     <com.github.anastr.speedviewlib.AwesomeSpeedometer
         android:id="@+id/turnover"
@@ -26,8 +26,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="83dp"
-        android:layout_marginBottom="177dp" />
+        android:layout_marginEnd="67dp"
+        android:layout_marginBottom="73dp" />
 
     <Button
         android:id="@+id/previous"
@@ -53,8 +53,8 @@
         android:layout_height="20dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="322dp"
-        android:layout_marginBottom="85dp"
+        android:layout_marginEnd="387dp"
+        android:layout_marginBottom="242dp"
         android:text="80C"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -65,8 +65,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="318dp"
-        android:layout_marginBottom="125dp"
+        android:layout_marginEnd="389dp"
+        android:layout_marginBottom="267dp"
         app:srcCompat="@drawable/temp" />
 
     <ImageView
@@ -75,8 +75,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="236dp"
-        android:layout_marginBottom="125dp"
+        android:layout_marginEnd="329dp"
+        android:layout_marginBottom="267dp"
         app:srcCompat="@drawable/drop" />
 
     <TextView
@@ -85,8 +85,8 @@
         android:layout_height="20dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="238dp"
-        android:layout_marginBottom="85dp"
+        android:layout_marginEnd="331dp"
+        android:layout_marginBottom="240dp"
         android:text="50%"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -97,7 +97,7 @@
         android:layout_height="20dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="147dp"
+        android:layout_marginEnd="387dp"
         android:layout_marginBottom="85dp"
         android:text="80C"
         android:textAlignment="center"
@@ -109,8 +109,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="150dp"
-        android:layout_marginBottom="124dp"
+        android:layout_marginEnd="390dp"
+        android:layout_marginBottom="116dp"
         app:srcCompat="@drawable/engine" />
 
     <TextView
@@ -119,7 +119,7 @@
         android:layout_height="20dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="67dp"
+        android:layout_marginEnd="326dp"
         android:layout_marginBottom="85dp"
         android:text="24V"
         android:textAlignment="center"
@@ -131,8 +131,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="70dp"
-        android:layout_marginBottom="125dp"
+        android:layout_marginEnd="329dp"
+        android:layout_marginBottom="116dp"
         app:srcCompat="@drawable/power" />
 
 </RelativeLayout>
