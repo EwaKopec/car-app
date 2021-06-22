@@ -3,8 +3,10 @@ package com.example.obd2_app;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -232,12 +234,16 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         }
 
         if(!data.isEmpty()){
-            makeChart(period, data, name );
+            makeChart(period, data, name);
         }
     }
 
     void makeChart(int period, List<String> data, String name) {
-
+        Intent intent = new Intent(this, charts.class);
+        intent.putExtra("name", name);
+        intent.putExtra("period", period);
+        intent.putExtra("data", (Parcelable) data);
+        startActivity(intent);
     }
 
     class DataThread extends Thread
