@@ -3,7 +3,6 @@ package com.example.obd2_app;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MenuItem;
@@ -39,7 +38,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-
 public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener
 {
     Speedometer speedometer, turnover;
@@ -58,8 +56,6 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
     private  List<ObdCommand> commands = new ArrayList<>();
     private  List<Integer> periods     = new ArrayList<>();
-
-    boolean isStart = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -162,6 +158,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         s.setMaxSpeed(250.0f);
         s.setMinSpeed(0.0f);
         s.setUnit("km/h");
+        s.setWithTremble(false);
     }
 
     void customizeTurnover(Speedometer s)
@@ -169,6 +166,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         s.setMaxSpeed(10.0f);
         s.setMinSpeed(0.0f);
         s.setUnit("x1000RPM");
+        s.setWithTremble(false);
     }
 
     public void onMenuClick(View view) {
@@ -182,26 +180,64 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
     public boolean onMenuItemClick(MenuItem item) {
         switch(item.getItemId()){
             case R.id.start_item:
-                ////
+                myThread.startNewMeasurement();
                 return true;
             case R.id.stop_item:
-                ////
+                myThread.stopMeasurement();
                 return true;
 
             case R.id.fuel_item:
-                ////
+                ////charts
+                generateChart(1);
                 return true;
 
             case R.id.speed_item:
-                ////
+                ////charts
+                generateChart(3);
                 return true;
 
             case R.id.addidional_item:
-                ////
+                ////charts
+                generateChart(0);
                 return true;
 
             default: return false;
         }
+    }
+
+    void generateChart(int id_data)
+    {
+        final List<Real_time_charts.DataThread.CommandData> CommandList = myThread.getData();
+        List<String> data;
+        int period;
+        String name;
+        switch(id_data){
+            case 0:
+               data = CommandList.get(0).data;
+               name = "Temperatura płynu chłodniczego";
+               period = CommandList.get(0).period; break;
+            case 1:
+               data = CommandList.get(1).data;
+               name = "Poziom paliwa";
+               period = CommandList.get(1).period; break;
+            case 2:
+               data = CommandList.get(2).data;
+               name = "Obroty";
+               period = CommandList.get(2).period; break;
+            case 3:
+               data = CommandList.get(3).data;
+               name = "Prędkość";
+               period = CommandList.get(3).period; break;
+            default: data = null; period = 0; name = null;
+        }
+
+        if(!data.isEmpty()){
+            makeChart(period, data, name );
+        }
+    }
+
+    void makeChart(int period, List<String> data, String name) {
+
     }
 
     class DataThread extends Thread

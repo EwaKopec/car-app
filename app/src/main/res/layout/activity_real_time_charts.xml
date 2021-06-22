@@ -7,19 +7,16 @@
     android:layout_height="match_parent"
     tools:context=".Real_time_charts">
 
+
     <Button
         android:id="@+id/menu"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="349dp"
+        android:layout_width="41dp"
+        android:layout_height="30dp"
+        android:layout_alignParentEnd="true"
         android:layout_marginTop="15dp"
-        android:layout_marginEnd="15dp"
-        android:layout_marginBottom="669dp"
+        android:layout_marginEnd="12dp"
         android:background="@drawable/menu"
         android:onClick="onMenuClick" />
-
 
     <com.github.anastr.speedviewlib.AwesomeSpeedometer
         android:id="@+id/awesomeSpeedometer"
@@ -39,7 +36,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="78dp"
+        android:layout_marginEnd="81dp"
         android:layout_marginBottom="139dp" />
 
     <TextView
