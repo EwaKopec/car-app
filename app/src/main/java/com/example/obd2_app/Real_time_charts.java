@@ -63,6 +63,9 @@ public class Real_time_charts extends AppCompatActivity
         fuelTV = findViewById(R.id.fuelTV);
         tempTV = findViewById(R.id.tempTV);
 
+        customizeTurnover(turnover);
+        customizeSpeedometer(speedometer);
+
 
         device = getIntent().getParcelableExtra("device");
 
@@ -129,20 +132,16 @@ public class Real_time_charts extends AppCompatActivity
 
     void customizeSpeedometer(Speedometer s)
     {
-        s.setBackgroundCircleColor(Color.WHITE);
-        s.setSpeedTextColor(Color.GREEN);
-        s.setIndicatorLightColor(Color.MAGENTA);
-        s.setStartDegree(0);
-        s.setEndDegree(250);
+        s.setMaxSpeed(250.0f);
+        s.setMinSpeed(0.0f);
+        s.setUnit("km/h");
     }
 
     void customizeTurnover(Speedometer s)
     {
-        s.setBackgroundCircleColor(Color.WHITE);
-        s.setSpeedTextColor(Color.GREEN);
-        s.setIndicatorLightColor(Color.MAGENTA);
-        s.setStartDegree(0);
-        s.setEndDegree(10);
+        s.setMaxSpeed(10.0f);
+        s.setMinSpeed(0.0f);
+        s.setUnit("x1000RPM");
     }
 
     class DataThread extends Thread
