@@ -6,6 +6,8 @@ import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -35,10 +37,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
+
 public class Real_time_charts extends AppCompatActivity
 {
     Speedometer speedometer, turnover;
     TextView tempTV, fuelTV, engineTV, powerTV;
+    Button startStop;
 
     private BluetoothDevice device;
     private BluetoothSocket socket = null;
@@ -53,6 +57,8 @@ public class Real_time_charts extends AppCompatActivity
     private  List<ObdCommand> commands = new ArrayList<>();
     private  List<Integer> periods     = new ArrayList<>();
 
+    boolean isStart = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -64,9 +70,12 @@ public class Real_time_charts extends AppCompatActivity
         engineTV = findViewById(R.id.engineTV);
         fuelTV = findViewById(R.id.fuelTV);
         tempTV = findViewById(R.id.tempTV);
+        startStop = findViewById(R.id.startStop);
 
         customizeTurnover(turnover);
         customizeSpeedometer(speedometer);
+
+
 
 
         device = getIntent().getParcelableExtra("device");
@@ -149,7 +158,6 @@ public class Real_time_charts extends AppCompatActivity
         });
     }
 
-
     void customizeSpeedometer(Speedometer s)
     {
         s.setMaxSpeed(250.0f);
@@ -162,6 +170,19 @@ public class Real_time_charts extends AppCompatActivity
         s.setMaxSpeed(10.0f);
         s.setMinSpeed(0.0f);
         s.setUnit("x1000RPM");
+    }
+
+    public void onStartStopClick(View view) {
+        if(!isStart){
+            //pobieraj dane i wykonuj pomiar
+            //zmien ikone
+            startStop.setBackgroundResource(R.drawable.stop);
+
+        }
+        else{
+            //zatrzymaj pobieranie danych
+            startStop.setBackgroundResource(R.drawable.start);
+        }
     }
 
     class DataThread extends Thread

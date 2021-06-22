@@ -7,36 +7,15 @@
     android:layout_height="match_parent"
     tools:context=".Real_time_charts">
 
-
-    <com.github.anastr.speedviewlib.AwesomeSpeedometer
-        android:id="@+id/awesomeSpeedometer"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="center"
-        android:layout_marginEnd="81dp"
-        android:layout_marginBottom="468dp" />
-
-    <com.github.anastr.speedviewlib.AwesomeSpeedometer
-        android:id="@+id/turnover"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_gravity="center"
-        android:layout_marginEnd="83dp"
-        android:layout_marginBottom="177dp" />
-
     <Button
-        android:id="@+id/previous"
+        android:id="@+id/startStop"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:onClick="onStartStopClick"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
         android:layout_margin="15dp"
-        android:background="@drawable/left"/>
+        android:background="@drawable/start"/>
 
     <Button
         android:id="@+id/next"
@@ -47,14 +26,36 @@
         android:layout_margin="15dp"
         android:background="@drawable/right"/>
 
-    <TextView
-        android:id="@+id/tempTV"
-        android:layout_width="37dp"
-        android:layout_height="20dp"
+
+    <com.github.anastr.speedviewlib.AwesomeSpeedometer
+        android:id="@+id/awesomeSpeedometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="322dp"
-        android:layout_marginBottom="85dp"
+        android:layout_gravity="center"
+        android:layout_marginEnd="81dp"
+        android:layout_marginBottom="414dp" />
+
+    <com.github.anastr.speedviewlib.AwesomeSpeedometer
+        android:id="@+id/turnover"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_marginEnd="78dp"
+        android:layout_marginBottom="139dp" />
+
+    <TextView
+        android:id="@+id/tempTV"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="310dp"
+        android:layout_marginBottom="41dp"
         android:text="80C"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -65,8 +66,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="318dp"
-        android:layout_marginBottom="125dp"
+        android:layout_marginEnd="319dp"
+        android:layout_marginBottom="78dp"
         app:srcCompat="@drawable/temp" />
 
     <ImageView
@@ -76,29 +77,29 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="236dp"
-        android:layout_marginBottom="125dp"
+        android:layout_marginBottom="78dp"
         app:srcCompat="@drawable/drop" />
 
     <TextView
         android:id="@+id/fuelTV"
-        android:layout_width="30dp"
-        android:layout_height="20dp"
+        android:layout_width="47dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="238dp"
-        android:layout_marginBottom="85dp"
+        android:layout_marginEnd="228dp"
+        android:layout_marginBottom="40dp"
         android:text="50%"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
 
     <TextView
         android:id="@+id/engineTV"
-        android:layout_width="37dp"
-        android:layout_height="20dp"
+        android:layout_width="52dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="147dp"
-        android:layout_marginBottom="85dp"
+        android:layout_marginEnd="139dp"
+        android:layout_marginBottom="41dp"
         android:text="80C"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -110,17 +111,17 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="150dp"
-        android:layout_marginBottom="124dp"
+        android:layout_marginBottom="78dp"
         app:srcCompat="@drawable/engine" />
 
     <TextView
         android:id="@+id/powerTV"
-        android:layout_width="37dp"
-        android:layout_height="20dp"
+        android:layout_width="62dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="67dp"
-        android:layout_marginBottom="85dp"
+        android:layout_marginEnd="55dp"
+        android:layout_marginBottom="41dp"
         android:text="24V"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -132,7 +133,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="70dp"
-        android:layout_marginBottom="125dp"
+        android:layout_marginBottom="79dp"
         app:srcCompat="@drawable/power" />
 
 </RelativeLayout>
