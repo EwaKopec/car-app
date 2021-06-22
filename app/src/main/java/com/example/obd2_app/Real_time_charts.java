@@ -120,7 +120,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
     private void UpdateGUI() {
         myHandler.post( new Runnable() {
-            @SuppressLint("SetTextI18n")
+            @SuppressLint({"SetTextI18n", "DefaultLocale"})
             public void run() {
 
                 myTimeDisconnector = myThread.getReadTime();

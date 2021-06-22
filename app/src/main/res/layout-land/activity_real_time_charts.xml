@@ -10,14 +10,14 @@
 
     <Button
         android:id="@+id/menu"
-        android:layout_width="35dp"
-        android:layout_height="wrap_content"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="679dp"
+        android:layout_marginStart="643dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="362dp"
+        android:layout_marginBottom="342dp"
         android:background="@drawable/menu"
         android:onClick="onMenuClick" />
 
@@ -29,8 +29,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="434dp"
-        android:layout_marginBottom="68dp" />
+        android:layout_marginEnd="433dp"
+        android:layout_marginBottom="74dp" />
 
     <com.github.anastr.speedviewlib.AwesomeSpeedometer
         android:id="@+id/turnover"
