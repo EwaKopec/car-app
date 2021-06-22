@@ -6,8 +6,10 @@ import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,11 +40,11 @@ import java.util.regex.Pattern;
 
 
 
-public class Real_time_charts extends AppCompatActivity
+public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener
 {
     Speedometer speedometer, turnover;
     TextView tempTV, fuelTV, engineTV, powerTV;
-    Button startStop;
+    Button menuButton;
 
     private BluetoothDevice device;
     private BluetoothSocket socket = null;
@@ -70,13 +72,10 @@ public class Real_time_charts extends AppCompatActivity
         engineTV = findViewById(R.id.engineTV);
         fuelTV = findViewById(R.id.fuelTV);
         tempTV = findViewById(R.id.tempTV);
-        startStop = findViewById(R.id.startStop);
+        menuButton = findViewById(R.id.menu);
 
         customizeTurnover(turnover);
         customizeSpeedometer(speedometer);
-
-
-
 
         device = getIntent().getParcelableExtra("device");
 
@@ -172,16 +171,36 @@ public class Real_time_charts extends AppCompatActivity
         s.setUnit("x1000RPM");
     }
 
-    public void onStartStopClick(View view) {
-        if(!isStart){
-            //pobieraj dane i wykonuj pomiar
-            //zmien ikone
-            startStop.setBackgroundResource(R.drawable.stop);
+    public void onMenuClick(View view) {
+        PopupMenu popupMenu = new PopupMenu(this, view);
+        popupMenu.setOnMenuItemClickListener(this);
+        popupMenu.inflate(R.menu.popup_menu);
+        popupMenu.show();
+    }
 
-        }
-        else{
-            //zatrzymaj pobieranie danych
-            startStop.setBackgroundResource(R.drawable.start);
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch(item.getItemId()){
+            case R.id.start_item:
+                ////
+                return true;
+            case R.id.stop_item:
+                ////
+                return true;
+
+            case R.id.fuel_item:
+                ////
+                return true;
+
+            case R.id.speed_item:
+                ////
+                return true;
+
+            case R.id.addidional_item:
+                ////
+                return true;
+
+            default: return false;
         }
     }
 

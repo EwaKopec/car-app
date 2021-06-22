@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/start_item"
+        android:title="START" />
+
+    <item
+        android:id="@+id/stop_item"
+        android:title="STOP"
+        android:enabled="false"/>
+
+    <item
+        android:id="@+id/fuel_item"
+        android:title="Paliwo" />
+
+    <item
+        android:id="@+id/speed_item"
+        android:title="Prędkość" />
+
+    <item
+        android:id="@+id/addidional_item"
+        android:title="Additional info" />
+</menu>
