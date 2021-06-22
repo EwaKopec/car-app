@@ -31,6 +31,7 @@ import com.github.pires.obd.exceptions.NonNumericResponseException;
 import com.github.pires.obd.exceptions.ResponseException;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -47,7 +48,6 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
     Button menuButton;
 
     private BluetoothDevice device;
-    private BluetoothSocket socket = null;
 
     private final Timer         myTimer   = new Timer();
     private final Handler       myHandler = new Handler();
@@ -135,11 +135,12 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                         String speed, rmp, fuel, temp;
                         speed = CommandList.get(3).currentData;
                         rmp = CommandList.get(2).currentData;
-                        fuel = String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData), "%");
-                        temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData), "°C");
 
-                        speedometer.setSpeedAt(findDigitis(speed));
-                        turnover.setSpeedAt(findDigitis(rmp)/1000.0F);
+                        fuel = String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData.isEmpty()?"0":CommandList.get(1).currentData), "%");
+                        temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData.isEmpty()?"0":CommandList.get(0).currentData), "°C");
+
+                        speedometer.speedTo(findDigitis(speed));
+                        turnover.speedTo(findDigitis(rmp)/1000.0F);
                         tempTV.setText(temp);
                         fuelTV.setText(fuel);
                     }
@@ -234,7 +235,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         }
 
         if(!data.isEmpty()){
-            List<Float> dataFloat = null;
+            List<Float> dataFloat = new ArrayList<>();
             for(String i:data)
             {
                 dataFloat.add(findDigitis(i));
@@ -247,7 +248,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         Intent intent = new Intent(this, charts.class);
         intent.putExtra("name", name);
         intent.putExtra("period", period);
-        intent.putExtra("data", (Parcelable) data);
+        intent.putExtra("data", (Serializable) data);
         startActivity(intent);
     }
 

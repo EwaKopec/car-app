@@ -26,7 +26,7 @@ public class charts extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_charts);
 
-        data = getIntent().getParcelableExtra("data");
+        data = (List<Float>) getIntent().getSerializableExtra("data");
         period = getIntent().getIntExtra("period", 1);
         name = getIntent().getStringExtra("name");
 
