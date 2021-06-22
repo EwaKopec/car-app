@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             BluetoothDevice selectedDevice = pairedDevices.get(position);
 
             if(!bluetooth.getPairedDevices().isEmpty() && selectedDevice != null) {
-                Intent intent = new Intent(this, TestActivity.class);
+                Intent intent = new Intent(this, Real_time_charts.class);
                 intent.putExtra("device", selectedDevice);
                 startActivity(intent);
             }

@@ -1,11 +1,7 @@
 package com.example.obd2_app;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.app.AlertDialog;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
-import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,10 +10,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.pires.obd.commands.ObdCommand;
-import com.github.pires.obd.commands.ObdMultiCommand;
 import com.github.pires.obd.commands.SpeedCommand;
-import com.github.pires.obd.commands.engine.OilTempCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
@@ -30,11 +26,8 @@ import com.github.pires.obd.exceptions.NonNumericResponseException;
 import com.github.pires.obd.exceptions.ResponseException;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -198,6 +191,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
     /*
     *
     */
+
     class DataThread extends Thread
     {
         private final UUID myUUID           = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");

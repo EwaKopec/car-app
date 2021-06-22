@@ -1,8 +1,6 @@
 package com.example.obd2_app;
 
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.bluetooth.BluetoothAdapter;
+import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.graphics.Color;
@@ -11,32 +9,47 @@ import android.os.Handler;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.github.anastr.speedviewlib.Gauge;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.github.anastr.speedviewlib.Speedometer;
-import com.github.pires.obd.commands.temperature.AmbientAirTemperatureCommand;
+import com.github.pires.obd.commands.ObdCommand;
+import com.github.pires.obd.commands.SpeedCommand;
+import com.github.pires.obd.commands.engine.RPMCommand;
+import com.github.pires.obd.commands.fuel.FuelLevelCommand;
+import com.github.pires.obd.commands.protocol.EchoOffCommand;
+import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
+import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
+import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
+import com.github.pires.obd.enums.ObdProtocols;
+import com.github.pires.obd.exceptions.NonNumericResponseException;
+import com.github.pires.obd.exceptions.ResponseException;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
-import java.util.regex.Pattern;
-
-import me.aflak.bluetooth.Bluetooth;
-import me.aflak.bluetooth.interfaces.DeviceCallback;
 
 
 public class Real_time_charts extends AppCompatActivity
 {
     Speedometer speedometer, turnover;
+    TextView tempTV, fuelTV, engineTV, powerTV;
 
-    private Bluetooth bluetooth;
     private BluetoothDevice device;
     private BluetoothSocket socket = null;
 
-    final Handler myHandler = new Handler();
-    PrimeThread p;
+    private final Timer         myTimer   = new Timer();
+    private final Handler       myHandler = new Handler();
+    private Real_time_charts.DataThread myThread;
+    private       long          myTimeDisconnector = System.currentTimeMillis();
+
+    private final long          TIME_TO_STOP = 5000; //ms
+
+    private  List<ObdCommand> commands = new ArrayList<>();
+    private  List<Integer> periods     = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,41 +58,74 @@ public class Real_time_charts extends AppCompatActivity
 
         speedometer = findViewById(R.id.awesomeSpeedometer);
         turnover = findViewById(R.id.turnover);
+        powerTV = findViewById(R.id.powerTV);
+        engineTV = findViewById(R.id.engineTV);
+        fuelTV = findViewById(R.id.fuelTV);
+        tempTV = findViewById(R.id.tempTV);
+
 
         device = getIntent().getParcelableExtra("device");
-        //bluetooth = new Bluetooth(this);
-        //bluetooth.setCallbackOnUI(this);
-        //bluetooth.setDeviceCallback(deviceCallback);
 
-        customizeSpeedometer(speedometer);
-        customizeTurnover(turnover);
+        commands.add(new EngineCoolantTemperatureCommand());
+        commands.add(new FuelLevelCommand());
+        commands.add(new RPMCommand());
+        commands.add(new SpeedCommand());
+        periods.add(1000 );
+        periods.add(10000);
+        periods.add( 500 );
+        periods.add( 500 );
 
-        Timer myTimer = new Timer();
+        myThread = new Real_time_charts.DataThread(device, commands, periods);
+        myThread.start();
+
         myTimer.schedule(new TimerTask() {
             @Override
-            public void run() {UpdateGUI();}
-        }, 0, 500);
-
-        p = new PrimeThread(Real_time_charts.this);
-        p.start();
+            public void run() { UpdateGUI(); }
+        }, 0, 1000);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        //bluetooth.onStart();
-        //bluetooth.connectToDevice(device);
         Toast.makeText(Real_time_charts.this, "Connecting...", Toast.LENGTH_SHORT).show();
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-        //if(bluetooth.isConnected()) {
-            //bluetooth.disconnect();
-        //}
-        //bluetooth.onStop();
+    protected void onDestroy() {
+        super.onDestroy();
+        Toast.makeText(this, "Disconnected!", Toast.LENGTH_SHORT).show();
+        myThread.turnOff();
     }
+
+    private void UpdateGUI() {
+        myHandler.post( new Runnable() {
+            @SuppressLint("SetTextI18n")
+            public void run() {
+
+                myTimeDisconnector = myThread.getReadTime();
+                if (System.currentTimeMillis() - myTimeDisconnector > TIME_TO_STOP) {
+                    Real_time_charts.this.finish();
+                }
+
+                if (myThread.isMeasurementWorking())
+                {
+                    final List<Real_time_charts.DataThread.CommandData> CommandList = myThread.getData();
+                    speedometer.setSpeedAt(Float.parseFloat(CommandList.get(3).currentData));
+                    turnover.setSpeedAt(Float.parseFloat(CommandList.get(2).currentData));
+                    tempTV.setText(CommandList.get(0).currentData + "°C");
+                    fuelTV.setText(CommandList.get(1).currentData);
+
+
+                }else{
+                    speedometer.setSpeedAt(0.0f);
+                    turnover.setSpeedAt(0.0f);
+                    tempTV.setText("0°C");
+                    fuelTV.setText("0%");
+                }
+            }
+        });
+    }
+
 
     void customizeSpeedometer(Speedometer s)
     {
@@ -99,209 +145,231 @@ public class Real_time_charts extends AppCompatActivity
         s.setEndDegree(10);
     }
 
-    private DeviceCallback deviceCallback = new DeviceCallback() {
-        @Override
-        public void onDeviceConnected(BluetoothDevice device) {
-            Toast.makeText(Real_time_charts.this, "Connected !", Toast.LENGTH_SHORT).show();
-            socket = bluetooth.getSocket();
-            p = new PrimeThread(Real_time_charts.this);
-            p.start();
-            /*if (socket != null && socket.isConnected())
-            {
-                try {
-                    //new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    //new LineFeedOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    //new TimeoutCommand(125).run(socket.getInputStream(), socket.getOutputStream());
-                    //new SelectProtocolCommand(ObdProtocols.AUTO).run(socket.getInputStream(), socket.getOutputStream());
-                    //new AmbientAirTemperatureCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    //socket.getOutputStream().write(("01 46" + "\r").getBytes());
+    class DataThread extends Thread
+    {
+        private final UUID myUUID           = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+        private final long LOOP_PERIOD      = 10; //ms
+        private final long PICK_THRESHOLD   = LOOP_PERIOD/5; //ms
+        private final int  TIMEOUT_COMMAND  = 250; //1/4ms 250 = 1000ms
+        private final ObdProtocols PROTOCOL = ObdProtocols.AUTO;
 
-                } catch (Exception e) {
-                    Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }*/
-        }
+        public final String ERROR_DATA_IN_SIZE = "Bad amount of data received ";
 
-        @Override
-        public void onDeviceDisconnected(BluetoothDevice device, String message) {
-            Toast.makeText(Real_time_charts.this, "Device disconnected !", Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onMessage(byte[] message) {
-            String str = new String(message);
-            Toast.makeText(Real_time_charts.this, "Message -> "+str, Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onError(int errorCode) {
-            Toast.makeText(Real_time_charts.this, "Error! -> "+errorCode, Toast.LENGTH_SHORT).show();
-        }
-
-        @Override
-        public void onConnectError(final BluetoothDevice device, String message) {
-            Toast.makeText(Real_time_charts.this, "Could not connect, next try in 3 sec...", Toast.LENGTH_SHORT).show();
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    bluetooth.connectToDevice(device);
-                }
-            }, 3000);
-        }
-    };
-
-    private void UpdateGUI() {
-        myHandler.post(myRunnable);
-    }
-
-    final Runnable myRunnable = new Runnable() {
-        public void run() {
+        private boolean isWorking       = true;
+        private boolean isStopped       = false;
+        private boolean wait            = false;
+        private long    lastRead        = System.currentTimeMillis();
+        private long    lastLoop        = System.currentTimeMillis();
 
 
-            socket = p.getSocket();
+        private BluetoothSocket   socket        = null;
+        private List<ObdCommand> commandIO     = new ArrayList<>();
+        private List<Real_time_charts.DataThread.CommandData> commandData   = new ArrayList<>();
+        private List<String>      lastErrors    = new ArrayList<>();
+
+        public DataThread(BluetoothDevice device, List<ObdCommand> commands, List<Integer> periods)
+        {
+            try {
+                socket = device.createInsecureRfcommSocketToServiceRecord(myUUID);
+                socket.connect();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+                lastErrors.add(e.getMessage());
+            }
+
+            int i = 0;
+            for (ObdCommand com : commands){
+                commandIO.add(com);
+                commandData.add(new Real_time_charts.DataThread.CommandData(com.getName(),periods.get(i++)));
+            }
 
             if (socket != null && socket.isConnected())
             {
-                //socket.getOutputStream().write(("01 05" + "\r").getBytes());
-                //socket.getOutputStream().flush();
+                try {
+                    new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
+                    new LineFeedOffCommand().run(socket.getInputStream(), socket.getOutputStream());
+                    new TimeoutCommand(TIMEOUT_COMMAND).run(socket.getInputStream(), socket.getOutputStream());
+                    new SelectProtocolCommand(PROTOCOL).run(socket.getInputStream(), socket.getOutputStream());
+                }catch ( ResponseException | IOException | InterruptedException e) {
+                    System.out.println(e.getMessage());
+                    lastErrors.add(e.getMessage());
+                }
             }
 
-        }
-    };
-
-    static class PrimeThread extends Thread
-    {
-        private static Pattern WHITESPACE_PATTERN = Pattern.compile("\\s");
-        private static Pattern BUSINIT_PATTERN = Pattern.compile("(BUS INIT)|(BUSINIT)|(\\.)");
-        private static Pattern SEARCHING_PATTERN = Pattern.compile("SEARCHING");
-        private static Pattern DIGITS_LETTERS_PATTERN = Pattern.compile("([0-9A-F])+");
-
-        Real_time_charts main;
-        BluetoothSocket socket;
-        String rawData = "...";
-        protected ArrayList<Integer> buffer = null;
-        private float temperature = 0.0f;
-
-        long lastPick = 0;
-        String tmp;
-
-        BluetoothAdapter myBluetooth;
-        static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
-        PrimeThread(Real_time_charts activity){
-            main = activity;
-            this.buffer = new ArrayList<>();
-
-            myBluetooth = BluetoothAdapter.getDefaultAdapter();//get the mobile bluetooth device
-            BluetoothDevice dispositivo = myBluetooth.getRemoteDevice(main.device.getAddress());//connects to the device's address and checks if it's available
-            try {
-                socket = dispositivo.createInsecureRfcommSocketToServiceRecord(myUUID);//create a RFCOMM (SPP) connection
-            } catch (IOException e) {
-                e.printStackTrace();
+            for (Real_time_charts.DataThread.CommandData com : commandData){
+                com.startTime = System.currentTimeMillis();
             }
-            BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-            try {
-                socket.connect();//start connection
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
+            lastRead = System.currentTimeMillis();
+            lastLoop = System.currentTimeMillis();
         }
 
         public void run()
         {
-            while(true)
+            while (isWorking)
             {
-                if (socket != null && socket.isConnected())
+                while (wait) {
+                    isStopped = true;
+                    lastRead = System.currentTimeMillis();
+                }
+
+                if(System.currentTimeMillis() - lastLoop > LOOP_PERIOD)
                 {
-                    try {
-                        EngineCoolantTemperatureCommand com = new EngineCoolantTemperatureCommand ();
-                        com.run(socket.getInputStream(), socket.getOutputStream());
-                        tmp = com.getCalculatedResult();
-                        lastPick = System.currentTimeMillis();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                    if (socket != null && socket.isConnected())
+                    {
+                        List<String> dataList = new ArrayList<>();
 
-                    /*
-                    try {
-                        //reading data from input stream
-                        // read until '>' arrives OR end of stream reached
-                        StringBuilder res = new StringBuilder();
-                        byte b = 0;
-                        char c;
-
-                        // -1 if the end of the stream is reached
-                        while ((b = (byte) socket.getInputStream().read()) > -1) {
-                            c = (char) b;
-                            if (c == '>') // read until '>' arrives
-                            {
-                                break;
+                        for (ObdCommand com : commandIO) {
+                            try {
+                                com.run(socket.getInputStream(), socket.getOutputStream());
+                                dataList.add(com.getFormattedResult());
+                            } catch (IndexOutOfBoundsException | NonNumericResponseException | ResponseException | IOException | InterruptedException e) {
+                                System.out.println(e.getMessage());
+                                lastErrors.add(e.getMessage());
+                                dataList.add("-1");
                             }
-                            res.append(c);
                         }
 
-                        rawData = removeAll(SEARCHING_PATTERN, res.toString());
-                        rawData = removeAll(WHITESPACE_PATTERN, rawData);//removes all [ \t\n\x0B\f\r]
-                        rawData = removeAll(BUSINIT_PATTERN, rawData);
-
-                        if (rawData.length() > 6) {
-                            rawData = rawData.substring(rawData.length()-6,rawData.length());
+                        int i = 0;
+                        for (Real_time_charts.DataThread.CommandData com : commandData) {
+                            com.currentData = dataList.get(i);
+                            com.lastPickTime = System.currentTimeMillis();
+                            if (com.lastPickTime - com.stopTime >= com.period - PICK_THRESHOLD) {
+                                com.data.add(com.currentData);
+                                com.stopTime = com.lastPickTime;
+                            }
+                            i++;
                         }
 
-                        if(rawData.length() > 0) {
-                            fillBuffer();
-                            performCalculations();
-                            lastPick = System.currentTimeMillis();
-                        }
-
-                    } catch (IOException e) {
-                        Toast.makeText(main, "Error! -> " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        lastRead = System.currentTimeMillis();
                     }
-                    */
+                    else {
+                        for (Real_time_charts.DataThread.CommandData com : commandData) {
+                            com.currentData = "-1";
+                            if (System.currentTimeMillis() - com.stopTime >= com.period - PICK_THRESHOLD) {
+                                com.data.add(com.currentData);
+                                com.stopTime = System.currentTimeMillis();
+                            }
+                        }
+                    }
+                    lastLoop = System.currentTimeMillis();
+                }
 
+                isStopped = false;
+            }
+
+            if (socket != null && socket.isConnected()) {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
+
         }
 
-        public String getData(){
-            return  tmp+"'F | TIME: "+String.valueOf(System.currentTimeMillis()-lastPick); //String.valueOf(temperature)+"'F | TIME: "+String.valueOf(System.currentTimeMillis()-lastPick);
+        public void startNewMeasurement()
+        {
+            wait        = true;
+            while (!isStopped) {;};
+            for (Real_time_charts.DataThread.CommandData com : commandData){
+                com.clearData();
+            }
+            lastErrors    = new ArrayList<>();
+            wait = false;
+        }
+
+        public void stopMeasurement()
+        {
+            wait = true;
+        }
+
+        public void resetMeasurement(List<ObdCommand> commands, List<Integer> periods)
+        {
+            wait        = true;
+            while (!isStopped) {;};
+            int i = 0;
+            commandIO    = new ArrayList<>();
+            commandData  = new ArrayList<>();
+            lastErrors   = new ArrayList<>();
+            for (ObdCommand com : commands){
+                commandIO.add(com);
+                commandData.add(new Real_time_charts.DataThread.CommandData(com.getName(),periods.get(i++)));
+            }
+            for (Real_time_charts.DataThread.CommandData com : commandData){
+                com.startTime = System.currentTimeMillis();
+            }
+            wait = false;
         }
 
         public BluetoothSocket getSocket(){
             return  socket;
         }
 
-        protected void fillBuffer() {
-            rawData = rawData.replaceAll("\\s", ""); //removes all [ \t\n\x0B\f\r]
-            rawData = rawData.replaceAll("(BUS INIT)|(BUSINIT)|(\\.)", "");
+        public boolean isConnected() {
+            return socket.isConnected();
+        }
 
-            if (rawData.matches("([0-9A-F])+")) {
-                //throw new NonNumericResponseException(rawData);
-                // read string each two chars
-                buffer.clear();
-                int begin = 0;
-                int end = 2;
-                while (end <= rawData.length()) {
-                    buffer.add(Integer.decode("0x" + rawData.substring(begin, end)));
-                    begin = end;
-                    end += 2;
-                }
+        public boolean isThreadLive() {
+            return isWorking;
+        }
+
+        public boolean isMeasurementWorking() {
+            return !isStopped;
+        }
+
+        public List<Real_time_charts.DataThread.CommandData> getData(){
+            return commandData;
+        }
+
+        public Real_time_charts.DataThread.CommandData getData(int index){
+            return commandData.get(index);
+        }
+
+        public long getReadTime(){
+            return lastRead;
+        }
+
+        public void turnOff(){
+            isWorking = false;
+        }
+
+        public List<String> getErrors(){
+            return lastErrors;
+        }
+
+        public String getLastError(){
+            return lastErrors.remove(lastErrors.size()-1);
+        }
+
+        class CommandData
+        {
+            public String           commandName;
+            public List<String>     data;
+            public String           currentData;
+            public int              period;             //ms
+            public long             startTime;
+            public long             stopTime;
+            public long             lastPickTime;
+
+            CommandData(String command, int period)
+            {
+                this.data           = new ArrayList<>();
+                this.commandName    = command;
+                this.startTime      = System.currentTimeMillis();
+                this.stopTime       = System.currentTimeMillis();
+                this.period         = period;
+                this.currentData    = "";
+                this.lastPickTime   = System.currentTimeMillis();
             }
-        }
 
-        protected void performCalculations() {
-            // ignore first two bytes [hh hh] of the response
-            temperature = buffer.get(2) - 40;
-        }
-
-        protected String replaceAll(Pattern pattern, String input, String replacement) {
-            return pattern.matcher(input).replaceAll(replacement);
-        }
-
-        protected String removeAll(Pattern pattern, String input) {
-            return pattern.matcher(input).replaceAll("");
+            public void clearData(){
+                this.data           = new ArrayList<>();
+                this.startTime      = System.currentTimeMillis();
+                this.stopTime       = System.currentTimeMillis();
+                this.currentData    = "";
+                this.lastPickTime   = System.currentTimeMillis();
+            }
         }
 
     }
