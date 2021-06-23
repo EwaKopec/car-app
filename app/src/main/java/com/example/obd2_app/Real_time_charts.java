@@ -152,7 +152,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                         temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData.isEmpty()?"0":CommandList.get(0).currentData)," °C");
                         oilTemp = String.format("%.1f%s", Float.valueOf(CommandList.get(6).currentData.isEmpty()?"0":CommandList.get(6).currentData), " °C");
                         fuelPressure = String.format("%.1f%s", Float.valueOf(CommandList.get(5).currentData.isEmpty()?"0":CommandList.get(5).currentData), " Bar");
-                        consumption = String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData.isEmpty()?"0":CommandList.get(4).currentData), " l/km");
+                        consumption = String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData.isEmpty()?"0":CommandList.get(4).currentData), " l/100km");
 
                         speedometer.speedTo(findDigitis(speed));
                         turnover.speedTo(findDigitis(rmp)/1000.0F);
@@ -163,14 +163,14 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                         consumptionTV.setText(consumption);
                     }
 
-                }else{
+                }else {
                     speedometer.speedTo(0.0f);
                     turnover.speedTo(0.0f);
-                    tempTV.setText("0 °C");
-                    fuelTV.setText("0 %");
-                    oilTempTV.setText("0 °C");
-                    fuelPressureTV.setText("0 Bar");
-                    consumptionTV.setText("0 l/km");
+                    tempTV.setText("NaN");
+                    fuelTV.setText("NaN");
+                    oilTempTV.setText("NaN");
+                    fuelPressureTV.setText("NaN");
+                    consumptionTV.setText("NaN");
                 }
             }
         });
