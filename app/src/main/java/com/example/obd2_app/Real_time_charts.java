@@ -19,8 +19,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.github.anastr.speedviewlib.Speedometer;
 import com.github.pires.obd.commands.ObdCommand;
 import com.github.pires.obd.commands.SpeedCommand;
+import com.github.pires.obd.commands.engine.OilTempCommand;
 import com.github.pires.obd.commands.engine.RPMCommand;
+import com.github.pires.obd.commands.fuel.ConsumptionRateCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
+import com.github.pires.obd.commands.pressure.FuelPressureCommand;
 import com.github.pires.obd.commands.protocol.EchoOffCommand;
 import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
 import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
@@ -44,7 +47,7 @@ import java.util.regex.Pattern;
 public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener
 {
     Speedometer speedometer, turnover;
-    TextView tempTV, fuelTV;
+    TextView tempTV, fuelTV, oilTempTV, fuelPressureTV, consumptionTV;
     Button menuButton;
 
     private BluetoothDevice device;
@@ -68,6 +71,9 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         turnover = findViewById(R.id.turnover);
         fuelTV = findViewById(R.id.fuelTV);
         tempTV = findViewById(R.id.tempTV);
+        fuelPressureTV = findViewById(R.id.fuelpressureTV);
+        oilTempTV = findViewById(R.id.oilTemp);
+        consumptionTV = findViewById(R.id.consumptionTV);
         menuButton = findViewById(R.id.menu);
 
         customizeTurnover(turnover);
@@ -79,8 +85,15 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         commands.add(new FuelLevelCommand());
         commands.add(new RPMCommand());
         commands.add(new SpeedCommand());
+        commands.add(new ConsumptionRateCommand());
+        commands.add(new FuelPressureCommand());
+        commands.add(new OilTempCommand());
+
         periods.add(1000);
         periods.add(1000);
+        periods.add( 500 );
+        periods.add( 500 );
+        periods.add( 500 );
         periods.add( 500 );
         periods.add( 500 );
 
@@ -130,17 +143,23 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                 {
                     final List<Real_time_charts.DataThread.CommandData> CommandList = myThread.getData();
                     if(!CommandList.isEmpty()) {
-                        String speed, rmp, fuel, temp;
+                        String speed, rmp, fuel, temp, oilTemp, fuelPressure, consumption;
                         speed = CommandList.get(3).currentData;
                         rmp = CommandList.get(2).currentData;
 
                         fuel = String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData.isEmpty()?"0":CommandList.get(1).currentData), "%");
                         temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData.isEmpty()?"0":CommandList.get(0).currentData), "°C");
+                        oilTemp = String.format("%.1f%s", Float.valueOf(CommandList.get(6).currentData.isEmpty()?"0":CommandList.get(6).currentData), "°C");
+                        fuelPressure = String.format("%.1f%s", Float.valueOf(CommandList.get(5).currentData.isEmpty()?"0":CommandList.get(5).currentData), "Bar");
+                        consumption = String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData.isEmpty()?"0":CommandList.get(4).currentData), "l/km");
 
                         speedometer.speedTo(findDigitis(speed));
                         turnover.speedTo(findDigitis(rmp)/1000.0F);
                         tempTV.setText(temp);
                         fuelTV.setText(fuel);
+                        oilTempTV.setText(oilTemp);
+                        fuelPressureTV.setText(fuelPressure);
+                        consumptionTV.setText(consumption);
                     }
 
 

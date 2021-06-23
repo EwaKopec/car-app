@@ -6,8 +6,7 @@
 
     <item
         android:id="@+id/stop_item"
-        android:title="STOP"
-        android:enabled="false"/>
+        android:title="STOP" />
 
     <item
         android:id="@+id/fuel_item"
@@ -19,5 +18,5 @@
 
     <item
         android:id="@+id/addidional_item"
-        android:title="Additional info" />
+        android:title="info" />
 </menu>

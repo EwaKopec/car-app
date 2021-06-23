@@ -86,4 +86,37 @@
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
 
+    <TextView
+        android:id="@+id/fuelpressureTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="411dp"
+        android:layout_marginBottom="42dp"
+        android:text="Fuel pressure"
+        android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/consumptionTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="368dp"
+        android:layout_marginBottom="272dp"
+        android:text="consumption"
+        android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/oilTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="418dp"
+        android:layout_marginBottom="165dp"
+        android:text="Oil temp"
+        android:textColor="@color/colorAccent" />
+
 </RelativeLayout>

@@ -67,8 +67,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="126dp"
-        android:layout_marginBottom="77dp"
+        android:layout_marginEnd="119dp"
+        android:layout_marginBottom="76dp"
         app:srcCompat="@drawable/drop" />
 
     <TextView
@@ -77,10 +77,43 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="118dp"
+        android:layout_marginEnd="112dp"
         android:layout_marginBottom="42dp"
         android:text="50%"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
+
+    <TextView
+        android:id="@+id/fuelpressureTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="36dp"
+        android:layout_marginBottom="43dp"
+        android:textColor="@color/colorAccent"
+        android:text="Fuel pressure" />
+
+    <TextView
+        android:id="@+id/consumptionTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="171dp"
+        android:layout_marginBottom="44dp"
+        android:textColor="@color/colorAccent"
+        android:text="consumption" />
+
+    <TextView
+        android:id="@+id/oilTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="319dp"
+        android:layout_marginBottom="42dp"
+        android:textColor="@color/colorAccent"
+        android:text="Oil temp" />
 
 </RelativeLayout>
