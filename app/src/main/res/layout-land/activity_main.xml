@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
     tools:context=".MainActivity">
 
 
@@ -17,6 +18,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.34"
+        android:divider="@color/colorAccent"
+        android:dividerHeight="2dp"
         tools:ignore="MissingConstraints,OnClick" />
 
     <TextView
@@ -29,6 +32,7 @@
         app:layout_constraintHorizontal_bias="0.071"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:textColor="@color/colorAccent"
         app:layout_constraintVertical_bias="0.033" />
 
     <Button
@@ -43,6 +47,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.9"
+        android:background="@color/colorBlue"
+        android:textColor="@color/colorPrimary"
         tools:ignore="MissingConstraints" />
 
     <Button
@@ -57,6 +63,8 @@
         app:layout_constraintStart_toEndOf="@+id/visiblebutton"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.9"
+        android:background="@color/colorBlue"
+        android:textColor="@color/colorPrimary"
         tools:ignore="MissingConstraints" />
 
     <Button
@@ -70,6 +78,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.9"
+        android:background="@color/colorBlue"
+        android:textColor="@color/colorPrimary"
         tools:ignore="MissingConstraints" />
 
     <Button
@@ -83,6 +93,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.9"
+        android:background="@color/colorBlue"
+        android:textColor="@color/colorPrimary"
         tools:ignore="MissingConstraints" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

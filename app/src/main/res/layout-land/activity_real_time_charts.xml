@@ -40,7 +40,7 @@
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
         android:layout_marginEnd="102dp"
-        android:layout_marginBottom="21dp" />
+        android:layout_marginBottom="20dp" />
 
     <TextView
         android:id="@+id/tempTV"

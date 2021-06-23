@@ -6,7 +6,6 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Parcelable;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -59,8 +58,8 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
     private final long          TIME_TO_STOP = 5000; //ms
 
-    private  List<ObdCommand> commands = new ArrayList<>();
-    private  List<Integer> periods     = new ArrayList<>();
+    private final List<ObdCommand> commands = new ArrayList<>();
+    private final List<Integer> periods     = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -507,7 +506,5 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                 this.lastPickTime   = System.currentTimeMillis();
             }
         }
-
     }
-
 }
