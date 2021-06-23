@@ -45,8 +45,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="310dp"
-        android:layout_marginBottom="41dp"
+        android:layout_marginEnd="244dp"
+        android:layout_marginBottom="42dp"
         android:text="80C"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -57,8 +57,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="319dp"
-        android:layout_marginBottom="78dp"
+        android:layout_marginEnd="252dp"
+        android:layout_marginBottom="76dp"
         app:srcCompat="@drawable/temp" />
 
     <ImageView
@@ -67,8 +67,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="236dp"
-        android:layout_marginBottom="78dp"
+        android:layout_marginEnd="126dp"
+        android:layout_marginBottom="77dp"
         app:srcCompat="@drawable/drop" />
 
     <TextView
@@ -77,54 +77,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="228dp"
-        android:layout_marginBottom="40dp"
+        android:layout_marginEnd="118dp"
+        android:layout_marginBottom="42dp"
         android:text="50%"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
-
-    <TextView
-        android:id="@+id/engineTV"
-        android:layout_width="52dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="139dp"
-        android:layout_marginBottom="41dp"
-        android:text="80C"
-        android:textAlignment="center"
-        android:textColor="@color/colorAccent" />
-
-    <ImageView
-        android:id="@+id/engineimageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="150dp"
-        android:layout_marginBottom="78dp"
-        app:srcCompat="@drawable/engine" />
-
-    <TextView
-        android:id="@+id/powerTV"
-        android:layout_width="62dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="55dp"
-        android:layout_marginBottom="41dp"
-        android:text="24V"
-        android:textAlignment="center"
-        android:textColor="@color/colorAccent" />
-
-    <ImageView
-        android:id="@+id/powerimageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="70dp"
-        android:layout_marginBottom="79dp"
-        app:srcCompat="@drawable/power" />
 
 </RelativeLayout>

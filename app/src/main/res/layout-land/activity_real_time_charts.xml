@@ -14,10 +14,10 @@
         android:layout_height="26dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="643dp"
+        android:layout_marginStart="648dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="342dp"
+        android:layout_marginBottom="302dp"
         android:background="@drawable/menu"
         android:onClick="onMenuClick" />
 
@@ -44,12 +44,12 @@
 
     <TextView
         android:id="@+id/tempTV"
-        android:layout_width="37dp"
-        android:layout_height="20dp"
+        android:layout_width="59dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="387dp"
-        android:layout_marginBottom="242dp"
+        android:layout_marginEnd="346dp"
+        android:layout_marginBottom="222dp"
         android:text="80C"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -60,8 +60,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="389dp"
-        android:layout_marginBottom="267dp"
+        android:layout_marginEnd="362dp"
+        android:layout_marginBottom="261dp"
         app:srcCompat="@drawable/temp" />
 
     <ImageView
@@ -70,64 +70,20 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="329dp"
-        android:layout_marginBottom="267dp"
+        android:layout_marginEnd="361dp"
+        android:layout_marginBottom="131dp"
         app:srcCompat="@drawable/drop" />
 
     <TextView
         android:id="@+id/fuelTV"
-        android:layout_width="30dp"
-        android:layout_height="20dp"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="331dp"
-        android:layout_marginBottom="240dp"
+        android:layout_marginEnd="352dp"
+        android:layout_marginBottom="88dp"
         android:text="50%"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
-
-    <TextView
-        android:id="@+id/engineTV"
-        android:layout_width="37dp"
-        android:layout_height="20dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="387dp"
-        android:layout_marginBottom="85dp"
-        android:text="80C"
-        android:textAlignment="center"
-        android:textColor="@color/colorAccent" />
-
-    <ImageView
-        android:id="@+id/engineimageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="390dp"
-        android:layout_marginBottom="116dp"
-        app:srcCompat="@drawable/engine" />
-
-    <TextView
-        android:id="@+id/powerTV"
-        android:layout_width="37dp"
-        android:layout_height="20dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="326dp"
-        android:layout_marginBottom="85dp"
-        android:text="24V"
-        android:textAlignment="center"
-        android:textColor="@color/colorAccent" />
-
-    <ImageView
-        android:id="@+id/powerimageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="329dp"
-        android:layout_marginBottom="116dp"
-        app:srcCompat="@drawable/power" />
 
 </RelativeLayout>
