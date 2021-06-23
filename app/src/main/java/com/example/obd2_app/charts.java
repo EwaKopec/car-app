@@ -3,20 +3,27 @@ package com.example.obd2_app;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.graphics.Color;
+import android.icu.text.SimpleDateFormat;
 import android.os.Bundle;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class charts extends AppCompatActivity {
     String name;
@@ -64,7 +71,8 @@ public class charts extends AppCompatActivity {
         scaleDataXY(period, data);
 
         LineDataSet dataSet = new LineDataSet(entries, name); // add entries to dataset
-        dataSet.setMode(LineDataSet.Mode.STEPPED);
+        dataSet.setDrawCircles(false);
+        dataSet.setMode(LineDataSet.Mode.HORIZONTAL_BEZIER);
         dataSet.setColor(Color.MAGENTA);
         LineData lineData = new LineData(dataSet);
 
@@ -91,6 +99,15 @@ public class charts extends AppCompatActivity {
         xAxis.setAxisMinimum(0);
         xAxis.setSpaceMin(seconds/MAX_POINT_NUMBER);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setValueFormatter(new ValueFormatter() {
+            private final SimpleDateFormat mFormat = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
+
+            @Override
+            public String getFormattedValue(float value) {
+                long millis = TimeUnit.SECONDS.toMillis((long) value);
+                return mFormat.format(new Date(millis-3600000)); //-1H
+            }
+        });
 
         Float [] floatData = data.toArray(new Float[0]);
 

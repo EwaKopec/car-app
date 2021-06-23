@@ -229,48 +229,46 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
     void generateChart(int id_data)
     {
         final List<Real_time_charts.DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
-        List<String> data;
-        int period;
+        List<String> data = null;
+        int period = 0;
         String name;
+
         switch(id_data){
             case 0:
-               data = CommandList.get(0).data;
                name = "Temperatura płynu chłodniczego";
-               period = CommandList.get(0).period; break;
+                break;
             case 1:
-               data = CommandList.get(1).data;
                name = "Poziom paliwa";
-               period = CommandList.get(1).period; break;
+                break;
             case 2:
-               data = CommandList.get(2).data;
                name = "Obroty";
-               period = CommandList.get(2).period; break;
+                break;
             case 3:
-               data = CommandList.get(3).data;
                name = "Prędkość";
-               period = CommandList.get(3).period; break;
+                break;
             case 4:
-                data = CommandList.get(4).data;
                 name = "Zużycie paliwa";
-                period = CommandList.get(4).period; break;
+                break;
             case 5:
-                data = CommandList.get(5).data;
                 name = "Ciśnienie paliwa";
-                period = CommandList.get(5).period; break;
+                break;
             case 6:
-                data = CommandList.get(6).data;
                 name = "Temperatura oleju";
-                period = CommandList.get(6).period; break;
-            default: data = null; period = 0; name = null;
+                break;
+            default: name = "Null";
         }
 
-        if(!data.isEmpty()){
-            List<Float> dataFloat = new ArrayList<>();
-            for(String i:data)
-            {
-                dataFloat.add(findDigitis(i));
+        if (CommandList.size() > id_data) {
+            data = new ArrayList<>(CommandList.get(id_data).data);
+            period = CommandList.get(id_data).period;
+
+            if (!data.isEmpty()) {
+                List<Float> dataFloat = new ArrayList<>();
+                for (String i : data) {
+                    dataFloat.add(findDigitis(i));
+                }
+                makeChart(period, dataFloat, name);
             }
-            makeChart(period, dataFloat, name);
         }
     }
 
