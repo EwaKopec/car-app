@@ -217,8 +217,8 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                 return true;
 
             case R.id.addidional_item:
-                ////charts
-                generateChart(0);
+                ////charts - oil temp
+                generateChart(6);
                 return true;
 
             default: return false;
@@ -248,6 +248,18 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                data = CommandList.get(3).data;
                name = "Prędkość";
                period = CommandList.get(3).period; break;
+            case 4:
+                data = CommandList.get(4).data;
+                name = "Zużycie paliwa";
+                period = CommandList.get(4).period; break;
+            case 5:
+                data = CommandList.get(5).data;
+                name = "Ciśnienie paliwa";
+                period = CommandList.get(5).period; break;
+            case 6:
+                data = CommandList.get(6).data;
+                name = "Temperatura oleju";
+                period = CommandList.get(6).period; break;
             default: data = null; period = 0; name = null;
         }
 
