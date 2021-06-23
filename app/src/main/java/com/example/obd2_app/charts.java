@@ -20,10 +20,13 @@ import java.util.List;
 
 public class charts extends AppCompatActivity {
     String name;
-    float period;
+    int period;
+    float time;
     ArrayList<Float> data;
     LineChart chart;
     TextView nameOfChart;
+
+    private final int MAX_POINT_NUMBER = 5; //+2 stat,end
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +34,7 @@ public class charts extends AppCompatActivity {
         setContentView(R.layout.activity_charts);
 
         data = (ArrayList<Float>) getIntent().getSerializableExtra("data");
-        period = getIntent().getIntExtra("period", 1);
+        period = getIntent().getIntExtra("period", 1000);
         name = getIntent().getStringExtra("name");
 
         chart = findViewById(R.id.chart);
@@ -44,38 +47,58 @@ public class charts extends AppCompatActivity {
     public void createChart()
     {
         List<Entry> entries = new ArrayList<>();
-        period /= period/1000;
+        time = 0;
         for(Float i:data){
-            entries.add(new Entry(period, i));
-            period += period;
+            entries.add(new Entry(time, i));
+            time += (float) (period/1000.0F); //ms->s
         }
+
+        /*int step = data.size() / MAX_POINT_NUMBER;
+        for (int i = 0 ; i<data.size() ; i += step){
+            entries.add(new Entry(time, data.get(i)));
+            time += (float) (period/1000.0F)*step; //ms->s
+        }
+        entries.add(new Entry(time, data.get(data.size()-1)));*/
 
         //scaling the data
         scaleDataXY(period, data);
 
         LineDataSet dataSet = new LineDataSet(entries, name); // add entries to dataset
+        dataSet.setMode(LineDataSet.Mode.STEPPED);
         dataSet.setColor(Color.MAGENTA);
         LineData lineData = new LineData(dataSet);
+
+        // enable touch gestures
+        chart.setTouchEnabled(true);
+        chart.setDragDecelerationFrictionCoef(0.9f);
+
+        // enable scaling and dragging
+        chart.setDragEnabled(true);
+        chart.setScaleEnabled(true);
+        chart.setDrawGridBackground(false);
+        chart.setHighlightPerDragEnabled(true);
+
         chart.setData(lineData);
         chart.invalidate(); // refresh
     }
 
     void scaleDataXY(float period, ArrayList<Float> data){
         long number = (long) (period * data.size());
-        long seconds = number/1000;
+        long seconds = (number/1000);
 
         XAxis xAxis = chart.getXAxis();
         xAxis.setAxisMaximum(seconds);
-        xAxis.setSpaceMin(seconds/1000);
-        xAxis.setSpaceMax(seconds/100);
+        xAxis.setAxisMinimum(0);
+        xAxis.setSpaceMin(seconds/MAX_POINT_NUMBER);
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
 
-        Float [] floatData = new Float[data.size()];
-        int i = 0;
+        Float [] floatData = data.toArray(new Float[0]);
+
+        /*int i = 0;
         for(Float f:data){
             floatData[i] = f;
             i++;
-        }
+        }*/
 
         Arrays.sort(floatData);
         float maxToInit = floatData[floatData.length-1] + 10;
@@ -84,6 +107,5 @@ public class charts extends AppCompatActivity {
         YAxis yAxis = chart.getAxisLeft();
         yAxis.setAxisMaximum(maxToInit);
         yAxis.setAxisMinimum(minToInit);
-
     }
 }

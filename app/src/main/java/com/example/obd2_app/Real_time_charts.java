@@ -138,7 +138,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                     Real_time_charts.this.finish();
                 }
 
-                if (myThread.isMeasurementWorking())
+                if (myThread.isMeasurementWorking() && myThread.isConnected())
                 {
                     final List<Real_time_charts.DataThread.CommandData> CommandList = myThread.getData();
                     if(!CommandList.isEmpty()) {
@@ -146,11 +146,11 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                         speed = CommandList.get(3).currentData;
                         rmp = CommandList.get(2).currentData;
 
-                        fuel = String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData.isEmpty()?"0":CommandList.get(1).currentData), "%");
-                        temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData.isEmpty()?"0":CommandList.get(0).currentData), "°C");
-                        oilTemp = String.format("%.1f%s", Float.valueOf(CommandList.get(6).currentData.isEmpty()?"0":CommandList.get(6).currentData), "°C");
-                        fuelPressure = String.format("%.1f%s", Float.valueOf(CommandList.get(5).currentData.isEmpty()?"0":CommandList.get(5).currentData), "Bar");
-                        consumption = String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData.isEmpty()?"0":CommandList.get(4).currentData), "l/km");
+                        fuel = String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData.isEmpty()?"0":CommandList.get(1).currentData)," %");
+                        temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData.isEmpty()?"0":CommandList.get(0).currentData)," °C");
+                        oilTemp = String.format("%.1f%s", Float.valueOf(CommandList.get(6).currentData.isEmpty()?"0":CommandList.get(6).currentData), " °C");
+                        fuelPressure = String.format("%.1f%s", Float.valueOf(CommandList.get(5).currentData.isEmpty()?"0":CommandList.get(5).currentData), " Bar");
+                        consumption = String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData.isEmpty()?"0":CommandList.get(4).currentData), " l/km");
 
                         speedometer.speedTo(findDigitis(speed));
                         turnover.speedTo(findDigitis(rmp)/1000.0F);
@@ -161,12 +161,14 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                         consumptionTV.setText(consumption);
                     }
 
-
                 }else{
-                    speedometer.setSpeedAt(0.0f);
-                    turnover.setSpeedAt(0.0f);
-                    tempTV.setText("0°C");
-                    fuelTV.setText("0%");
+                    speedometer.speedTo(0.0f);
+                    turnover.speedTo(0.0f);
+                    tempTV.setText("0 °C");
+                    fuelTV.setText("0 %");
+                    oilTempTV.setText("0 °C");
+                    fuelPressureTV.setText("0 Bar");
+                    consumptionTV.setText("0 l/km");
                 }
             }
         });
@@ -226,7 +228,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
     void generateChart(int id_data)
     {
-        final List<Real_time_charts.DataThread.CommandData> CommandList = myThread.getData();
+        final List<Real_time_charts.DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
         List<String> data;
         int period;
         String name;
@@ -284,23 +286,22 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
     {
         private final UUID myUUID           = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
         private final long LOOP_PERIOD      = 10; //ms
+        private final long WAIT_TIME        = 1000; //ms
         private final long PICK_THRESHOLD   = LOOP_PERIOD/5; //ms
         private final int  TIMEOUT_COMMAND  = 250; //1/4ms 250 = 1000ms
         private final ObdProtocols PROTOCOL = ObdProtocols.AUTO;
 
-        public final String ERROR_DATA_IN_SIZE = "Bad amount of data received ";
-
         private boolean isWorking       = true;
-        private boolean isStopped       = false;
+        private boolean stop            = false;
         private boolean wait            = false;
-        private long    lastRead        = System.currentTimeMillis();
-        private long    lastLoop        = System.currentTimeMillis();
+        private long    lastRead;
+        private long    lastLoop;
 
 
         private BluetoothSocket   socket        = null;
-        private List<ObdCommand> commandIO     = new ArrayList<>();
-        private List<Real_time_charts.DataThread.CommandData> commandData   = new ArrayList<>();
+        private List<ObdCommand> commandIO      = new ArrayList<>();
         private List<String>      lastErrors    = new ArrayList<>();
+        private List<Real_time_charts.DataThread.CommandData> commandData   = new ArrayList<>();
 
         public DataThread(BluetoothDevice device, List<ObdCommand> commands, List<Integer> periods)
         {
@@ -343,9 +344,16 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         {
             while (isWorking)
             {
-                while (wait) {
-                    isStopped = true;
+                while (stop) {
                     lastRead = System.currentTimeMillis();
+                }
+
+                while (wait) {
+                    lastRead = System.currentTimeMillis();
+                    if(System.currentTimeMillis() - lastLoop > WAIT_TIME) {
+                        wait = false;
+                        break;
+                    }
                 }
 
                 if(System.currentTimeMillis() - lastLoop > LOOP_PERIOD)
@@ -390,7 +398,6 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                     lastLoop = System.currentTimeMillis();
                 }
 
-                isStopped = false;
             }
 
             if (socket != null && socket.isConnected()) {
@@ -406,23 +413,24 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         public void startNewMeasurement()
         {
             wait        = true;
-            while (!isStopped) {;};
+
             for (Real_time_charts.DataThread.CommandData com : commandData){
                 com.clearData();
             }
-            lastErrors    = new ArrayList<>();
-            wait = false;
+            lastErrors      = new ArrayList<>();
+
+            stop            = false;
         }
 
         public void stopMeasurement()
         {
-            wait = true;
+            stop = true;
         }
 
         public void resetMeasurement(List<ObdCommand> commands, List<Integer> periods)
         {
             wait        = true;
-            while (!isStopped) {;};
+
             int i = 0;
             commandIO    = new ArrayList<>();
             commandData  = new ArrayList<>();
@@ -434,7 +442,8 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
             for (Real_time_charts.DataThread.CommandData com : commandData){
                 com.startTime = System.currentTimeMillis();
             }
-            wait = false;
+
+            stop = false;
         }
 
         public BluetoothSocket getSocket(){
@@ -450,7 +459,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         }
 
         public boolean isMeasurementWorking() {
-            return !isStopped;
+            return !wait&&!stop;
         }
 
         public List<Real_time_charts.DataThread.CommandData> getData(){
