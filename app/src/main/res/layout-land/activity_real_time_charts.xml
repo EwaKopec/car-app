@@ -14,10 +14,10 @@
         android:layout_height="26dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="648dp"
+        android:layout_marginStart="643dp"
         android:layout_marginTop="15dp"
         android:layout_marginEnd="15dp"
-        android:layout_marginBottom="302dp"
+        android:layout_marginBottom="281dp"
         android:background="@drawable/menu"
         android:onClick="onMenuClick" />
 
@@ -29,8 +29,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="433dp"
-        android:layout_marginBottom="74dp" />
+        android:layout_marginEnd="473dp"
+        android:layout_marginBottom="20dp" />
 
     <com.github.anastr.speedviewlib.AwesomeSpeedometer
         android:id="@+id/turnover"
@@ -39,8 +39,8 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="67dp"
-        android:layout_marginBottom="73dp" />
+        android:layout_marginEnd="102dp"
+        android:layout_marginBottom="21dp" />
 
     <TextView
         android:id="@+id/tempTV"
@@ -48,8 +48,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="346dp"
-        android:layout_marginBottom="222dp"
+        android:layout_marginEnd="347dp"
+        android:layout_marginBottom="164dp"
         android:text="80C"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -60,8 +60,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="362dp"
-        android:layout_marginBottom="261dp"
+        android:layout_marginEnd="361dp"
+        android:layout_marginBottom="212dp"
         app:srcCompat="@drawable/temp" />
 
     <ImageView
@@ -71,7 +71,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="361dp"
-        android:layout_marginBottom="131dp"
+        android:layout_marginBottom="77dp"
         app:srcCompat="@drawable/drop" />
 
     <TextView
@@ -80,8 +80,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="352dp"
-        android:layout_marginBottom="88dp"
+        android:layout_marginEnd="353dp"
+        android:layout_marginBottom="41dp"
         android:text="50%"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />

@@ -44,7 +44,7 @@ import java.util.regex.Pattern;
 public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener
 {
     Speedometer speedometer, turnover;
-    TextView tempTV, fuelTV, engineTV, powerTV;
+    TextView tempTV, fuelTV;
     Button menuButton;
 
     private BluetoothDevice device;
@@ -66,8 +66,6 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
         speedometer = findViewById(R.id.awesomeSpeedometer);
         turnover = findViewById(R.id.turnover);
-        powerTV = findViewById(R.id.powerTV);
-        engineTV = findViewById(R.id.engineTV);
         fuelTV = findViewById(R.id.fuelTV);
         tempTV = findViewById(R.id.tempTV);
         menuButton = findViewById(R.id.menu);
