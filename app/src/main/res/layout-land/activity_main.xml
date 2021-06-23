@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimaryDark"
+    android:background="@drawable/background_white"
     tools:context=".MainActivity">
 
 
@@ -12,6 +12,7 @@
         android:id="@+id/listView"
         android:layout_width="388dp"
         android:layout_height="250dp"
+        android:theme="@style/ListFont"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.492"

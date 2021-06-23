@@ -15,7 +15,7 @@
         <activity android:name=".charts" />
         <activity android:name=".TestActivity" />
         <activity android:name=".Real_time_charts" />
-        <activity android:name=".MainActivity" android:theme="@style/ListFont">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
