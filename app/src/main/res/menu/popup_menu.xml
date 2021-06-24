@@ -2,25 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/start_item"
-        android:title="START" />
+        android:title="START SAVING" />
 
     <item
         android:id="@+id/stop_item"
-        android:title="STOP" />
+        android:title="STOP SAVING" />
 
     <item
-        android:id="@+id/rpm_item"
-        android:title="RPM" />
+        android:id="@+id/graphs_item"
+        android:title="GRAPHS" />
 
-    <item
-        android:id="@+id/speed_item"
-        android:title="Speed" />
-
-    <item
-        android:id="@+id/temp_item"
-        android:title="Engine Coolant Temperature" />
 
     <item
         android:id="@+id/link_item"
-        android:title="Info about OBD2" />
+        android:title="More info about OBD2" />
 </menu>

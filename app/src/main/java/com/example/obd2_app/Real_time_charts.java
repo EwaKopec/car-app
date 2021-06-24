@@ -235,21 +235,13 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                 myThread.stopMeasurement();
                 return true;
 
-            case R.id.rpm_item:
+            case R.id.graphs_item:
                 ////charts
                 Save();
                 generateChart(2);
                 return true;
 
-            case R.id.speed_item:
-                ////charts
-                generateChart(3);
-                return true;
 
-            case R.id.temp_item:
-                ////charts - oil temp
-                generateChart(0);
-                return true;
             case R.id.link_item:
                 openBrowser();
 
