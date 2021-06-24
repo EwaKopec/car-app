@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.ContextThemeWrapper;
@@ -210,9 +211,9 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                 myThread.stopMeasurement();
                 return true;
 
-            case R.id.fuel_item:
+            case R.id.rpm_item:
                 ////charts
-                generateChart(1);
+                generateChart(2);
                 return true;
 
             case R.id.speed_item:
@@ -220,13 +221,21 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                 generateChart(3);
                 return true;
 
-            case R.id.addidional_item:
+            case R.id.temp_item:
                 ////charts - oil temp
-                generateChart(6);
+                generateChart(0);
                 return true;
+            case R.id.link_item:
+                openBrowser();
 
             default: return false;
         }
+    }
+
+    private void openBrowser() {
+        Uri uri = Uri.parse("https://www.outilsobdfacile.com/vehicle-list-compatible-obd2.php");
+        Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+        startActivity(intent);
     }
 
     void generateChart(int id_data)
@@ -238,25 +247,25 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
         switch(id_data){
             case 0:
-               name = "Temperatura płynu chłodniczego";
+               name = "Engine Coolant Temperature";
                 break;
             case 1:
-               name = "Poziom paliwa";
+               name = "Fuel";
                 break;
             case 2:
-               name = "Obroty";
+               name = "RPM";
                 break;
             case 3:
-               name = "Prędkość";
+               name = "Speed";
                 break;
             case 4:
-                name = "Zużycie paliwa";
+                name = "Consumption";
                 break;
             case 5:
-                name = "Ciśnienie paliwa";
+                name = "Pressure of fuel";
                 break;
             case 6:
-                name = "Temperatura oleju";
+                name = "Temperature of oil";
                 break;
             default: name = "Null";
         }

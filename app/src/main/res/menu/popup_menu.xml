@@ -9,14 +9,18 @@
         android:title="STOP" />
 
     <item
-        android:id="@+id/fuel_item"
-        android:title="Paliwo" />
+        android:id="@+id/rpm_item"
+        android:title="RPM" />
 
     <item
         android:id="@+id/speed_item"
-        android:title="Prędkość" />
+        android:title="Speed" />
 
     <item
-        android:id="@+id/addidional_item"
-        android:title="Temperatura oleju" />
+        android:id="@+id/temp_item"
+        android:title="Engine Coolant Temperature" />
+
+    <item
+        android:id="@+id/link_item"
+        android:title="Info about OBD2" />
 </menu>
