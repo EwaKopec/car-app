@@ -439,7 +439,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         private final ObdProtocols PROTOCOL = ObdProtocols.AUTO;
 
         private boolean isWorking       = true;
-        private boolean stop            = false;
+        private boolean stop            = true;
         private boolean wait            = false;
         private long    lastRead;
         private long    lastLoop;
