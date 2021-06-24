@@ -337,17 +337,20 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         final List<Real_time_charts.DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
         try {
             for (Real_time_charts.DataThread.CommandData data : CommandList) {
-                stream.write(data.commandName.getBytes());
-                stream.write(",".getBytes());
-                stream.write(String.valueOf(data.period).getBytes());
-                stream.write(",".getBytes());
-                stream.write(String.valueOf(data.data.size()).getBytes());
-                stream.write(",".getBytes());
-                for (String S : data.data) {
-                    stream.write(S.getBytes());
+                if (data.commandName.compareTo(commands.get(0).getName()) == 0 || data.commandName.compareTo(commands.get(2).getName()) == 0 ||data.commandName.compareTo(commands.get(3).getName()) == 0 )
+                {
+                    stream.write(data.commandName.getBytes());
                     stream.write(",".getBytes());
+                    stream.write(String.valueOf(data.period).getBytes());
+                    stream.write(",".getBytes());
+                    stream.write(String.valueOf(data.data.size()).getBytes());
+                    stream.write(",".getBytes());
+                    for (String S : data.data) {
+                        stream.write(S.getBytes());
+                        stream.write(",".getBytes());
+                    }
+                    stream.write("\n".getBytes());
                 }
-                stream.write("\n".getBytes());
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
