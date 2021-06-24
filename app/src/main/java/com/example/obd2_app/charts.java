@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
@@ -30,7 +31,7 @@ public class charts extends AppCompatActivity {
     float time;
     ArrayList<Float> data;
     LineChart chart;
-    TextView nameOfChart;
+    TextView nameOfChart, xlabel, ylabel;
 
     private final int MAX_POINT_NUMBER = 5; //+2 stat,end
 
@@ -45,8 +46,11 @@ public class charts extends AppCompatActivity {
 
         chart = findViewById(R.id.chart);
         nameOfChart = findViewById(R.id.nameOfChart);
+        xlabel = findViewById(R.id.Xlabel);
+        ylabel = findViewById(R.id.Ylabel);
 
         nameOfChart.setText(name);
+        ylabel.setText(name);
         createChart();
     }
 
@@ -84,6 +88,14 @@ public class charts extends AppCompatActivity {
         chart.setScaleEnabled(true);
         chart.setDrawGridBackground(false);
         chart.setHighlightPerDragEnabled(true);
+
+        Description description = chart.getDescription();
+        // enable or disable the description
+        description.setEnabled(true);
+        // set the description text
+        description.setText("Zmiany parametru " + name + " w czasie");
+        // set the position of the description on the screen
+        description.setPosition(15, 320);
 
         chart.setData(lineData);
         chart.invalidate(); // refresh

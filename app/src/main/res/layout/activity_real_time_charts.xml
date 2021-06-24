@@ -41,12 +41,12 @@
 
     <TextView
         android:id="@+id/tempTV"
-        android:layout_width="50dp"
+        android:layout_width="60dp"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="244dp"
-        android:layout_marginBottom="42dp"
+        android:layout_marginEnd="265dp"
+        android:layout_marginBottom="40dp"
         android:text="80C"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -57,8 +57,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="252dp"
-        android:layout_marginBottom="76dp"
+        android:layout_marginEnd="277dp"
+        android:layout_marginBottom="75dp"
         app:srcCompat="@drawable/temp" />
 
     <ImageView
@@ -77,8 +77,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="112dp"
-        android:layout_marginBottom="42dp"
+        android:layout_marginEnd="111dp"
+        android:layout_marginBottom="41dp"
         android:text="50%"
         android:textAlignment="center"
         android:textColor="@color/colorAccent" />
@@ -89,10 +89,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="36dp"
-        android:layout_marginBottom="43dp"
-        android:textColor="@color/colorAccent"
-        android:text="Fuel pressure" />
+        android:layout_marginEnd="19dp"
+        android:layout_marginBottom="42dp"
+        android:text="Fuel pressure"
+        android:textColor="@color/colorAccent" />
 
     <TextView
         android:id="@+id/consumptionTV"
@@ -101,9 +101,9 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="171dp"
-        android:layout_marginBottom="44dp"
-        android:textColor="@color/colorAccent"
-        android:text="consumption" />
+        android:layout_marginBottom="41dp"
+        android:text="consumption"
+        android:textColor="@color/colorAccent" />
 
     <TextView
         android:id="@+id/oilTemp"
@@ -111,9 +111,19 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="319dp"
-        android:layout_marginBottom="42dp"
-        android:textColor="@color/colorAccent"
-        android:text="Oil temp" />
+        android:layout_marginEnd="337dp"
+        android:layout_marginBottom="41dp"
+        android:text="Oil temp"
+        android:textColor="@color/colorAccent" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="49dp"
+        android:layout_height="34dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="340dp"
+        android:layout_marginBottom="75dp"
+        app:srcCompat="@drawable/oiltemp" />
 
 </RelativeLayout>
