@@ -1,12 +1,15 @@
 package com.example.obd2_app;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
@@ -17,6 +20,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.github.anastr.speedviewlib.Speedometer;
 import com.github.pires.obd.commands.ObdCommand;
@@ -35,6 +40,9 @@ import com.github.pires.obd.enums.ObdProtocols;
 import com.github.pires.obd.exceptions.NonNumericResponseException;
 import com.github.pires.obd.exceptions.ResponseException;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -52,6 +60,8 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
     TextView tempTV, fuelTV, oilTempTV, fuelPressureTV, consumptionTV;
     Button menuButton;
 
+    private static final int STORAGE_PERMISSION_CODE = 101;
+
     private BluetoothDevice device;
 
     private final Timer         myTimer   = new Timer();
@@ -68,6 +78,8 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_real_time_charts);
+
+        checkPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE, STORAGE_PERMISSION_CODE);
 
         speedometer = findViewById(R.id.awesomeSpeedometer);
         turnover = findViewById(R.id.turnover);
@@ -121,6 +133,18 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         myThread.turnOff();
     }
 
+    // Function to check and request permission.
+    public void checkPermission(String permission, int requestCode)
+    {
+        if (ContextCompat.checkSelfPermission(Real_time_charts.this, permission) == PackageManager.PERMISSION_DENIED) {
+            // Requesting the permission
+            ActivityCompat.requestPermissions(Real_time_charts.this, new String[] { permission }, requestCode);
+        }
+        else {
+            Toast.makeText(Real_time_charts.this, "Permission already granted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     float findDigitis(String s)
     {
         Pattern p = Pattern.compile("\\d+");
@@ -141,7 +165,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                     Real_time_charts.this.finish();
                 }
 
-                if (myThread.isMeasurementWorking() && myThread.isConnected())
+                if (myThread.isDataReadingWorking())
                 {
                     final List<Real_time_charts.DataThread.CommandData> CommandList = myThread.getData();
                     if(!CommandList.isEmpty()) {
@@ -213,6 +237,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
             case R.id.rpm_item:
                 ////charts
+                Save();
                 generateChart(2);
                 return true;
 
@@ -292,6 +317,53 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         startActivity(intent);
     }
 
+    private boolean Save(){
+        //Context context = this;
+        File path = new File("/sdcard/OBD"); //Na sztywno ale działa  //context.getFilesDir();
+        if(!path.exists()) path.mkdir();
+        File file = new File(path, "dane.txt");
+        FileOutputStream stream = null;
+
+        try {
+            stream = new FileOutputStream(file);
+        } catch (FileNotFoundException e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
+
+        if(stream == null)
+            return false;
+
+        final List<Real_time_charts.DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
+        try {
+            for (Real_time_charts.DataThread.CommandData data : CommandList) {
+                stream.write(data.commandName.getBytes());
+                stream.write(",".getBytes());
+                stream.write(String.valueOf(data.period).getBytes());
+                stream.write(",".getBytes());
+                stream.write(String.valueOf(data.data.size()).getBytes());
+                stream.write(",".getBytes());
+                for (String S : data.data) {
+                    stream.write(S.getBytes());
+                    stream.write(",".getBytes());
+                }
+                stream.write("\n".getBytes());
+            }
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        } finally {
+            try {
+                stream.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+        }
+
+        return true;
+    }
+
+
+
     class DataThread extends Thread
     {
         private final UUID myUUID           = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -354,10 +426,6 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         {
             while (isWorking)
             {
-                while (stop) {
-                    lastRead = System.currentTimeMillis();
-                }
-
                 while (wait) {
                     lastRead = System.currentTimeMillis();
                     if(System.currentTimeMillis() - lastLoop > WAIT_TIME) {
@@ -387,7 +455,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                         for (Real_time_charts.DataThread.CommandData com : commandData) {
                             com.currentData = dataList.get(i);
                             com.lastPickTime = System.currentTimeMillis();
-                            if (com.lastPickTime - com.stopTime >= com.period - PICK_THRESHOLD) {
+                            if (com.lastPickTime - com.stopTime >= com.period - PICK_THRESHOLD && !stop) {
                                 com.data.add(com.currentData);
                                 com.stopTime = com.lastPickTime;
                             }
@@ -399,7 +467,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                     else {
                         for (Real_time_charts.DataThread.CommandData com : commandData) {
                             com.currentData = "-1";
-                            if (System.currentTimeMillis() - com.stopTime >= com.period - PICK_THRESHOLD) {
+                            if (System.currentTimeMillis() - com.stopTime >= com.period - PICK_THRESHOLD && !stop) {
                                 com.data.add(com.currentData);
                                 com.stopTime = System.currentTimeMillis();
                             }
@@ -422,13 +490,13 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
         public void startNewMeasurement()
         {
-            wait        = true;
+            if(!stop)
+                return;
 
             for (Real_time_charts.DataThread.CommandData com : commandData){
                 com.clearData();
             }
             lastErrors      = new ArrayList<>();
-
             stop            = false;
         }
 
@@ -470,6 +538,10 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
 
         public boolean isMeasurementWorking() {
             return !wait&&!stop;
+        }
+
+        public boolean isDataReadingWorking() {
+            return !wait&&isConnected();
         }
 
         public List<Real_time_charts.DataThread.CommandData> getData(){
@@ -521,8 +593,6 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                 this.data           = new ArrayList<>();
                 this.startTime      = System.currentTimeMillis();
                 this.stopTime       = System.currentTimeMillis();
-                this.currentData    = "";
-                this.lastPickTime   = System.currentTimeMillis();
             }
         }
     }
