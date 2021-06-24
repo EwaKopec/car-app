@@ -177,11 +177,23 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                         speed = CommandList.get(3).currentData;
                         rmp = CommandList.get(2).currentData;
 
-                        fuel = String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData.isEmpty()?"0":CommandList.get(1).currentData)," %");
-                        temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData.isEmpty()?"0":CommandList.get(0).currentData)," °C");
-                        oilTemp = String.format("%.1f%s", Float.valueOf(CommandList.get(6).currentData.isEmpty()?"0":CommandList.get(6).currentData), " °C");
-                        fuelPressure = String.format("%.1f%s", Float.valueOf(CommandList.get(5).currentData.isEmpty()?"0":CommandList.get(5).currentData), " Bar");
-                        consumption = String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData.isEmpty()?"0":CommandList.get(4).currentData), " l/100km");
+                        fuel            = CommandList.get(1).currentData.isEmpty()?"-1":CommandList.get(1).currentData;
+                        temp            = CommandList.get(0).currentData.isEmpty()?"-1":CommandList.get(0).currentData;
+                        oilTemp         = CommandList.get(6).currentData.isEmpty()?"-1":CommandList.get(6).currentData;
+                        fuelPressure    = CommandList.get(5).currentData.isEmpty()?"-1":CommandList.get(5).currentData;
+                        consumption     = CommandList.get(4).currentData.isEmpty()?"-1":CommandList.get(4).currentData;
+
+                        fuel            = (fuel.compareTo("-1")==0)?"NaN":String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData)," %");
+                        temp            = (temp.compareTo("-1")==0)?"NaN":String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData)," °C");
+                        oilTemp         = (oilTemp.compareTo("-1")==0)?"NaN":String.format("%.1f%s", Float.valueOf(CommandList.get(6).currentData)," °C");
+                        fuelPressure    = (fuelPressure.compareTo("-1")==0)?"NaN":String.format("%.1f%s", Float.valueOf(CommandList.get(5).currentData)," Bar");
+                        consumption     = (consumption.compareTo("-1")==0)?"NaN":String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData)," l/100km");
+
+                        //fuel = String.format("%.1f%s", Float.valueOf(CommandList.get(1).currentData.isEmpty()?"0":CommandList.get(1).currentData)," %");
+                        //temp = String.format("%.1f%s", Float.valueOf(CommandList.get(0).currentData.isEmpty()?"0":CommandList.get(0).currentData)," °C");
+                        //oilTemp = String.format("%.1f%s", Float.valueOf(CommandList.get(6).currentData.isEmpty()?"0":CommandList.get(6).currentData), " °C");
+                        //fuelPressure = String.format("%.1f%s", Float.valueOf(CommandList.get(5).currentData.isEmpty()?"0":CommandList.get(5).currentData), " Bar");
+                        //consumption = String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData.isEmpty()?"0":CommandList.get(4).currentData), " l/100km");
 
                         speedometer.speedTo(findDigitis(speed));
                         turnover.speedTo(findDigitis(rmp)/1000.0F);
