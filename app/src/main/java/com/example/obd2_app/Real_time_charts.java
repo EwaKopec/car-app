@@ -41,11 +41,15 @@ import com.github.pires.obd.exceptions.NonNumericResponseException;
 import com.github.pires.obd.exceptions.ResponseException;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -233,12 +237,13 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                 return true;
             case R.id.stop_item:
                 myThread.stopMeasurement();
+                Save();
                 return true;
 
             case R.id.graphs_item:
                 ////charts
-                Save();
-                generateChart(2);
+                Intent intent = new Intent(this, Graph_selection.class);
+                startActivity(intent);
                 return true;
 
 
@@ -309,11 +314,66 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         startActivity(intent);
     }
 
-    private boolean Save(){
-        //Context context = this;
-        File path = new File("/sdcard/OBD"); //Na sztywno ale działa  //context.getFilesDir();
-        if(!path.exists()) path.mkdir();
-        File file = new File(path, "dane.txt");
+    private List<Real_time_charts.DataThread.CommandData> Load(List<String> files, String commandName)
+    {
+        List<Real_time_charts.DataThread.CommandData> newData = new ArrayList<>();
+
+        for (String file : files)
+        {
+            File path = new File(getExternalFilesDir(null).getAbsolutePath()+"/"+file);
+            FileInputStream stream = null;
+
+            try {
+                stream = new FileInputStream(path);
+            } catch (FileNotFoundException e) {
+                System.out.println(e.getMessage());
+                continue;
+            }
+
+            try {
+                byte b = 0;
+                StringBuilder res = new StringBuilder();
+                // -1 if the end of the stream is reached
+                while (((b = (byte) stream.read()) > -1)) {
+                    res.append((char) b);
+                }
+
+                String[] all = res.toString().split("\n");
+                for (String dat : all)
+                {
+                    String[] data = dat.split(",");
+                    if(data[0].compareTo(commandName) == 0) {
+                        Real_time_charts.DataThread.CommandData tmp = new DataThread.CommandData(data[0], Integer.valueOf(data[1]));
+                        for (int i = 3; i < data.length; i++) {
+                            tmp.data.add(data[i]);
+                        }
+                        newData.add(tmp);
+                    }
+                }
+
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            } finally {
+                try {
+                    stream.close();
+                } catch (IOException e) {
+                    System.out.println(e.getMessage());
+                }
+            }
+        }
+
+        return  newData;
+    }
+
+    private boolean Save()
+    {
+        final List<Real_time_charts.DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
+
+        // Creating date format
+        DateFormat simple = new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z");
+
+        File path = new File(getExternalFilesDir(null).getAbsolutePath());
+        File file = new File(path, simple.format(new Date(CommandList.get(0).startTime)));
         FileOutputStream stream = null;
 
         try {
@@ -326,7 +386,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         if(stream == null)
             return false;
 
-        final List<Real_time_charts.DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
+
         try {
             for (Real_time_charts.DataThread.CommandData data : CommandList) {
                 if (data.commandName.compareTo(commands.get(0).getName()) == 0 || data.commandName.compareTo(commands.get(2).getName()) == 0 ||data.commandName.compareTo(commands.get(3).getName()) == 0 )
@@ -357,9 +417,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         return true;
     }
 
-
-
-    class DataThread extends Thread
+    static class DataThread extends Thread
     {
         private final UUID myUUID           = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
         private final long LOOP_PERIOD      = 10; //ms
@@ -563,7 +621,7 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
             return lastErrors.remove(lastErrors.size()-1);
         }
 
-        class CommandData
+        static class CommandData
         {
             public String           commandName;
             public List<String>     data;
