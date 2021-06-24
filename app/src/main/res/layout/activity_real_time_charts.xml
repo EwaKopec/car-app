@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:background="@drawable/background"
+    android:id="@+id/relativeLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/background"
     tools:context=".Real_time_charts">
 
 
@@ -12,138 +13,153 @@
         android:id="@+id/menu"
         android:layout_width="41dp"
         android:layout_height="30dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:background="@drawable/menu"
-        android:onClick="onMenuClick" />
+        android:onClick="onMenuClick"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <com.github.anastr.speedviewlib.AwesomeSpeedometer
         android:id="@+id/awesomeSpeedometer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="75dp"
-        android:layout_marginBottom="414dp" />
+        android:layout_marginBottom="32dp"
+        app:layout_constraintBottom_toTopOf="@+id/turnover"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
 
     <com.github.anastr.speedviewlib.AwesomeSpeedometer
         android:id="@+id/turnover"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
         android:layout_gravity="center"
-        android:layout_marginEnd="75dp"
-        android:layout_marginBottom="139dp" />
+        android:layout_marginBottom="44dp"
+        app:layout_constraintBottom_toTopOf="@+id/imageView2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent" />
 
     <TextView
         android:id="@+id/tempTV"
         android:layout_width="60dp"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="265dp"
         android:layout_marginBottom="40dp"
         android:text="80C"
         android:textAlignment="center"
-        android:textColor="@color/colorAccent" />
-
-    <ImageView
-        android:id="@+id/tempimageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="277dp"
-        android:layout_marginBottom="75dp"
-        app:srcCompat="@drawable/temp" />
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/tempimageView"
+        app:layout_constraintStart_toStartOf="@+id/tempimageView" />
 
     <ImageView
         android:id="@+id/dropimageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="119dp"
-        android:layout_marginBottom="76dp"
+        android:layout_width="55dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/fuelTV"
+        app:layout_constraintEnd_toStartOf="@+id/imageView3"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/imageView2"
         app:srcCompat="@drawable/drop" />
-
-    <TextView
-        android:id="@+id/fuelTV"
-        android:layout_width="47dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="111dp"
-        android:layout_marginBottom="41dp"
-        android:text="50%"
-        android:textAlignment="center"
-        android:textColor="@color/colorAccent" />
-
-    <TextView
-        android:id="@+id/fuelpressureTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="19dp"
-        android:layout_marginBottom="42dp"
-        android:text="fuel pressure"
-        android:textColor="@color/colorAccent" />
-
-    <TextView
-        android:id="@+id/consumptionTV"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="171dp"
-        android:layout_marginBottom="41dp"
-        android:text="consumption"
-        android:textColor="@color/colorAccent" />
-
-    <TextView
-        android:id="@+id/oilTemp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="339dp"
-        android:layout_marginBottom="41dp"
-        android:text="Oil temp"
-        android:textColor="@color/colorAccent" />
 
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="55dp"
         android:layout_height="40dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="334dp"
-        android:layout_marginBottom="75dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/oilTemp"
+        app:layout_constraintEnd_toStartOf="@+id/tempimageView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@drawable/oiltemp" />
 
     <ImageView
+        android:id="@+id/tempimageView"
+        android:layout_width="55dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/tempTV"
+        app:layout_constraintEnd_toStartOf="@+id/imageView2"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/imageView"
+        app:srcCompat="@drawable/temp" />
+
+    <ImageView
         android:id="@+id/imageView2"
-        android:layout_width="34dp"
-        android:layout_height="24dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="192dp"
-        android:layout_marginBottom="79dp"
+        android:layout_width="55dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/consumptionTV"
+        app:layout_constraintEnd_toStartOf="@+id/dropimageView"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/tempimageView"
         app:srcCompat="@drawable/distributor" />
 
     <ImageView
         android:id="@+id/imageView3"
-        android:layout_width="57dp"
-        android:layout_height="44dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="29dp"
-        android:layout_marginBottom="69dp"
+        android:layout_width="55dp"
+        android:layout_height="40dp"
+        android:layout_marginBottom="12dp"
+        app:layout_constraintBottom_toTopOf="@+id/fuelpressureTV"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toEndOf="@+id/dropimageView"
         app:srcCompat="@drawable/fuel" />
 
-</RelativeLayout>
+    <TextView
+        android:id="@+id/fuelTV"
+        android:layout_width="47dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="50%"
+        android:textAlignment="center"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/dropimageView"
+        app:layout_constraintHorizontal_bias="0.6"
+        app:layout_constraintStart_toStartOf="@+id/dropimageView" />
+
+    <TextView
+        android:id="@+id/fuelpressureTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="fuel pressure"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imageView3"
+        app:layout_constraintHorizontal_bias="0.32"
+        app:layout_constraintStart_toStartOf="@+id/imageView3" />
+
+    <TextView
+        android:id="@+id/consumptionTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="40dp"
+        android:text="consumption"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imageView2"
+        app:layout_constraintHorizontal_bias="0.571"
+        app:layout_constraintStart_toStartOf="@+id/imageView2" />
+
+    <TextView
+        android:id="@+id/oilTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="40dp"
+        android:text="Oil temp"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/imageView"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/imageView" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
