@@ -11,8 +11,8 @@
 
     <Button
         android:id="@+id/menu"
-        android:layout_width="41dp"
-        android:layout_height="30dp"
+        android:layout_width="55dp"
+        android:layout_height="40dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:background="@drawable/menu"
@@ -161,5 +161,30 @@
         app:layout_constraintEnd_toEndOf="@+id/imageView"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="@+id/imageView" />
+
+    <ImageView
+        android:id="@+id/imageView_rec"
+        android:layout_width="55dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="8dp"
+        android:scaleType="fitCenter"
+        app:layout_constraintEnd_toStartOf="@+id/awesomeSpeedometer"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_sharp_rec_off" />
+
+    <TextView
+        android:id="@+id/timeTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="00:00:00"
+        android:textAlignment="center"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintEnd_toEndOf="@+id/imageView_rec"
+        app:layout_constraintStart_toStartOf="@+id/imageView_rec"
+        app:layout_constraintTop_toBottomOf="@+id/imageView_rec" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -42,12 +42,12 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
 
     private BluetoothDevice device;
 
-    private final Timer         myTimer   = new Timer();
-    private final Handler       myHandler = new Handler();
-    private       DataThread    myThread;
-    private       long          myTimeDisconnector = System.currentTimeMillis();
+    private final Timer             myTimer   = new Timer();
+    private final Handler           myHandler = new Handler();
+    private       TestDataThread    myThread;
+    private       long              myTimeDisconnector = System.currentTimeMillis();
 
-    private final long          TIME_TO_STOP = 5000; //ms
+    private final long              TIME_TO_STOP = 5000; //ms
 
     private  List<ObdCommand> commands = new ArrayList<>();
     private  List<Integer> periods     = new ArrayList<>();
@@ -90,7 +90,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         periods.add( 500 );
         periods.add( 500 );
 
-        myThread = new DataThread(device, commands, periods);
+        myThread = new TestDataThread(device, commands, periods);
         myThread.start();
 
         myTimer.schedule(new TimerTask() {
@@ -116,6 +116,8 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                 break;
         }
     }
+
+
 
     @Override
     protected void onStart() {
@@ -157,7 +159,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
                         tTitle.setTextColor(Color.BLACK);
                     }
 
-                    final List<DataThread.CommandData> CommandList = myThread.getData();
+                    final List<TestDataThread.CommandData> CommandList = myThread.getData();
                     tData1.setText(CommandList.get(0).currentData);
                     tData2.setText(CommandList.get(1).currentData);
                     tData3.setText(CommandList.get(2).currentData);
@@ -188,11 +190,70 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    // Generate Chart example
+    /* Generate Chart example
+
+    void generateChart(int id_data)
+    {
+        final List<DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
+        List<String> data = null;
+        int period = 0;
+        String name;
+
+        switch(id_data){
+            case 0:
+                name = "Engine Coolant Temperature";
+                break;
+            case 1:
+                name = "Fuel";
+                break;
+            case 2:
+                name = "RPM";
+                break;
+            case 3:
+                name = "Speed";
+                break;
+            case 4:
+                name = "Consumption";
+                break;
+            case 5:
+                name = "Pressure of fuel";
+                break;
+            case 6:
+                name = "Temperature of oil";
+                break;
+            default: name = "Null";
+        }
+
+        if (CommandList.size() > id_data) {
+            data = new ArrayList<>(CommandList.get(id_data).data);
+            period = CommandList.get(id_data).period;
+
+            if (!data.isEmpty()) {
+                List<Float> dataFloat = new ArrayList<>();
+                for (String i : data) {
+                    dataFloat.add(FileUtils.findDigitis(i));
+                }
+                makeChart(period, dataFloat, name);
+            }
+        }
+    }
+
+    void makeChart(int period, List<Float> data, String name) {
+        Intent intent = new Intent(this, charts.class);
+        intent.putExtra("name", name);
+        intent.putExtra("period", period);
+        intent.putExtra("data", (Serializable) data);
+        startActivity(intent);
+    }
+
+    */
+
     /*
     *
     */
 
-    class DataThread extends Thread
+    class TestDataThread extends Thread
     {
         private final UUID myUUID           = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
         private final long LOOP_PERIOD      = 10; //ms
@@ -214,7 +275,7 @@ public class TestActivity extends AppCompatActivity implements View.OnClickListe
         private List<CommandData> commandData   = new ArrayList<>();
         private List<String>      lastErrors    = new ArrayList<>();
 
-        public DataThread(BluetoothDevice device, List<ObdCommand> commands, List<Integer> periods)
+        public TestDataThread(BluetoothDevice device, List<ObdCommand> commands, List<Integer> periods)
         {
             try {
                 socket = device.createInsecureRfcommSocketToServiceRecord(myUUID);

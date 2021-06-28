@@ -3,18 +3,22 @@ package com.example.obd2_app;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.icu.text.SimpleDateFormat;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.view.ContextThemeWrapper;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,52 +35,39 @@ import com.github.pires.obd.commands.engine.RPMCommand;
 import com.github.pires.obd.commands.fuel.ConsumptionRateCommand;
 import com.github.pires.obd.commands.fuel.FuelLevelCommand;
 import com.github.pires.obd.commands.pressure.FuelPressureCommand;
-import com.github.pires.obd.commands.protocol.EchoOffCommand;
-import com.github.pires.obd.commands.protocol.LineFeedOffCommand;
-import com.github.pires.obd.commands.protocol.SelectProtocolCommand;
-import com.github.pires.obd.commands.protocol.TimeoutCommand;
 import com.github.pires.obd.commands.temperature.EngineCoolantTemperatureCommand;
-import com.github.pires.obd.enums.ObdProtocols;
-import com.github.pires.obd.exceptions.NonNumericResponseException;
-import com.github.pires.obd.exceptions.ResponseException;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.UUID;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 
 public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener
 {
     Speedometer speedometer, turnover;
-    TextView tempTV, fuelTV, oilTempTV, fuelPressureTV, consumptionTV;
+    TextView tempTV, fuelTV, oilTempTV, fuelPressureTV, consumptionTV, timeTV;
+    ImageView recImage;
     Button menuButton;
 
     private static final int STORAGE_PERMISSION_CODE = 101;
 
     private BluetoothDevice device;
 
-    private final Timer         myTimer   = new Timer();
-    private final Handler       myHandler = new Handler();
-    private Real_time_charts.DataThread myThread;
-    private       long          myTimeDisconnector = System.currentTimeMillis();
+    private final  Timer         myTimer   = new Timer();
+    private final  Handler       myHandler = new Handler();
+    private static DataThread    myThread;
+    private        long          myTimeDisconnector = System.currentTimeMillis();
+    private        long          myTimeMeasurement  = 0;
 
-    private final long          TIME_TO_STOP = 5000; //ms
+    private final  SimpleDateFormat mFormat   = new SimpleDateFormat("HH:mm:ss", Locale.ENGLISH);
+    private final  long          TIME_TO_STOP = 5000; //ms
 
     private final List<ObdCommand> commands = new ArrayList<>();
     private final List<Integer> periods     = new ArrayList<>();
+    private final List<Units>   units       = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +83,12 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         fuelPressureTV = findViewById(R.id.fuelpressureTV);
         oilTempTV = findViewById(R.id.oilTemp);
         consumptionTV = findViewById(R.id.consumptionTV);
+        timeTV = findViewById(R.id.timeTV);
         menuButton = findViewById(R.id.menu);
+
+        recImage = findViewById(R.id.imageView_rec);
+        recImage.setImageResource(R.drawable.ic_sharp_rec_off);
+        recImage.setColorFilter(Color.RED);
 
         customizeTurnover(turnover);
         customizeSpeedometer(speedometer);
@@ -115,7 +111,15 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         periods.add( 500 );
         periods.add( 500 );
 
-        myThread = new Real_time_charts.DataThread(device, commands, periods);
+        units.add(Units.TEMPERATURE);
+        units.add(Units.PERCENT);
+        units.add(Units.RPM);
+        units.add(Units.VELOCITY);
+        units.add(Units.CONSUMPTION);
+        units.add(Units.PRESSURE);
+        units.add(Units.TEMPERATURE);
+
+        myThread = new DataThread(device, commands, periods, units);
         myThread.start();
 
         myTimer.schedule(new TimerTask() {
@@ -149,16 +153,6 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         }
     }
 
-    float findDigitis(String s)
-    {
-        Pattern p = Pattern.compile("\\d+");
-        Matcher m = p.matcher(s);
-        if(m.find()){
-            return Float.parseFloat(m.group(0));
-        }
-        else return 0.0f;
-    }
-
     private void UpdateGUI() {
         myHandler.post( new Runnable() {
             @SuppressLint({"SetTextI18n", "DefaultLocale"})
@@ -169,9 +163,11 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                     Real_time_charts.this.finish();
                 }
 
+                timeTV.setText("00:00:00");
+
                 if (myThread.isDataReadingWorking())
                 {
-                    final List<Real_time_charts.DataThread.CommandData> CommandList = myThread.getData();
+                    final List<DataThread.CommandData> CommandList = myThread.getData();
                     if(!CommandList.isEmpty()) {
                         String speed, rmp, fuel, temp, oilTemp, fuelPressure, consumption;
                         speed = CommandList.get(3).currentData;
@@ -195,13 +191,17 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
                         //fuelPressure = String.format("%.1f%s", Float.valueOf(CommandList.get(5).currentData.isEmpty()?"0":CommandList.get(5).currentData), " Bar");
                         //consumption = String.format("%.1f%s", Float.valueOf(CommandList.get(4).currentData.isEmpty()?"0":CommandList.get(4).currentData), " l/100km");
 
-                        speedometer.speedTo(findDigitis(speed));
-                        turnover.speedTo(findDigitis(rmp)/1000.0F);
+                        speedometer.speedTo(FileUtils.findDigitis(speed));
+                        turnover.speedTo(FileUtils.findDigitis(rmp)/1000.0F);
                         tempTV.setText(temp);
                         fuelTV.setText(fuel);
                         oilTempTV.setText(oilTemp);
                         fuelPressureTV.setText(fuelPressure);
                         consumptionTV.setText(consumption);
+
+                        if(myThread.isMeasurementWorking()){
+                            timeTV.setText(mFormat.format(new Date( (System.currentTimeMillis()-myTimeMeasurement) - 3600000 + 1000))); //-1H
+                        }
                     }
 
                 }else {
@@ -245,23 +245,17 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
     public boolean onMenuItemClick(MenuItem item) {
         switch(item.getItemId()){
             case R.id.start_item:
-                myThread.startNewMeasurement();
+                startMeasurement();
                 return true;
             case R.id.stop_item:
-                myThread.stopMeasurement();
-                Save();
+                stopMeasurement();
                 return true;
-
             case R.id.graphs_item:
-                ////charts
                 Intent intent = new Intent(this, Graph_selection.class);
                 startActivity(intent);
                 return true;
-
-
             case R.id.link_item:
                 openBrowser();
-
             default: return false;
         }
     }
@@ -272,393 +266,28 @@ public class Real_time_charts extends AppCompatActivity implements PopupMenu.OnM
         startActivity(intent);
     }
 
-    void generateChart(int id_data)
-    {
-        final List<Real_time_charts.DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
-        List<String> data = null;
-        int period = 0;
-        String name;
-
-        switch(id_data){
-            case 0:
-               name = "Engine Coolant Temperature";
-                break;
-            case 1:
-               name = "Fuel";
-                break;
-            case 2:
-               name = "RPM";
-                break;
-            case 3:
-               name = "Speed";
-                break;
-            case 4:
-                name = "Consumption";
-                break;
-            case 5:
-                name = "Pressure of fuel";
-                break;
-            case 6:
-                name = "Temperature of oil";
-                break;
-            default: name = "Null";
-        }
-
-        if (CommandList.size() > id_data) {
-            data = new ArrayList<>(CommandList.get(id_data).data);
-            period = CommandList.get(id_data).period;
-
-            if (!data.isEmpty()) {
-                List<Float> dataFloat = new ArrayList<>();
-                for (String i : data) {
-                    dataFloat.add(findDigitis(i));
-                }
-                makeChart(period, dataFloat, name);
-            }
-        }
+    private void startMeasurement(){
+        myThread.startNewMeasurement();
+        recImage.setImageResource(R.drawable.ic_sharp_rec);
+        recImage.setColorFilter(Color.WHITE);
+        Animation animation = new AlphaAnimation(1, 0.5F); //to change visibility from visible to invisible
+        animation.setDuration(2500); //1 second duration for each animation cycle
+        animation.setInterpolator(new LinearInterpolator());
+        animation.setRepeatCount(Animation.INFINITE); //repeating indefinitely
+        animation.setRepeatMode(Animation.REVERSE); //animation will start from end point once ended.
+        recImage.startAnimation(animation); //to start animation
+        myTimeMeasurement = System.currentTimeMillis();
     }
 
-    void makeChart(int period, List<Float> data, String name) {
-        Intent intent = new Intent(this, charts.class);
-        intent.putExtra("name", name);
-        intent.putExtra("period", period);
-        intent.putExtra("data", (Serializable) data);
-        startActivity(intent);
+    private void stopMeasurement(){
+        myThread.stopMeasurement();
+        recImage.setImageResource(R.drawable.ic_sharp_rec_off);
+        recImage.setColorFilter(Color.RED);
+        recImage.clearAnimation();
+        FileUtils.Save(this, myThread, commands);
     }
 
-    private List<Real_time_charts.DataThread.CommandData> Load(List<String> files, String commandName)
-    {
-        List<Real_time_charts.DataThread.CommandData> newData = new ArrayList<>();
-
-        for (String file : files)
-        {
-            File path = new File(getExternalFilesDir(null).getAbsolutePath()+"/"+file);
-            FileInputStream stream = null;
-
-            try {
-                stream = new FileInputStream(path);
-            } catch (FileNotFoundException e) {
-                System.out.println(e.getMessage());
-                continue;
-            }
-
-            try {
-                byte b = 0;
-                StringBuilder res = new StringBuilder();
-                // -1 if the end of the stream is reached
-                while (((b = (byte) stream.read()) > -1)) {
-                    res.append((char) b);
-                }
-
-                String[] all = res.toString().split("\n");
-                for (String dat : all)
-                {
-                    String[] data = dat.split(",");
-                    if(data[0].compareTo(commandName) == 0) {
-                        Real_time_charts.DataThread.CommandData tmp = new DataThread.CommandData(data[0], Integer.valueOf(data[1]));
-                        for (int i = 3; i < data.length; i++) {
-                            tmp.data.add(data[i]);
-                        }
-                        newData.add(tmp);
-                    }
-                }
-
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            } finally {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    System.out.println(e.getMessage());
-                }
-            }
-        }
-
-        return  newData;
-    }
-
-    private boolean Save()
-    {
-        final List<Real_time_charts.DataThread.CommandData> CommandList = new ArrayList<>(myThread.getData());
-
-        // Creating date format
-        DateFormat simple = new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z");
-
-        File path = new File(getExternalFilesDir(null).getAbsolutePath());
-        File file = new File(path, simple.format(new Date(CommandList.get(0).startTime)));
-        FileOutputStream stream = null;
-
-        try {
-            stream = new FileOutputStream(file);
-        } catch (FileNotFoundException e) {
-            System.out.println(e.getMessage());
-            return false;
-        }
-
-        if(stream == null)
-            return false;
-
-
-        try {
-            for (Real_time_charts.DataThread.CommandData data : CommandList) {
-                if (data.commandName.compareTo(commands.get(0).getName()) == 0 || data.commandName.compareTo(commands.get(2).getName()) == 0 ||data.commandName.compareTo(commands.get(3).getName()) == 0 )
-                {
-                    stream.write(data.commandName.getBytes());
-                    stream.write(",".getBytes());
-                    stream.write(String.valueOf(data.period).getBytes());
-                    stream.write(",".getBytes());
-                    stream.write(String.valueOf(data.data.size()).getBytes());
-                    stream.write(",".getBytes());
-                    for (String S : data.data) {
-                        stream.write(S.getBytes());
-                        stream.write(",".getBytes());
-                    }
-                    stream.write("\n".getBytes());
-                }
-            }
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            try {
-                stream.close();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-            }
-        }
-
-        return true;
-    }
-
-    static class DataThread extends Thread
-    {
-        private final UUID myUUID           = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-        private final long LOOP_PERIOD      = 10; //ms
-        private final long WAIT_TIME        = 1000; //ms
-        private final long PICK_THRESHOLD   = LOOP_PERIOD/5; //ms
-        private final int  TIMEOUT_COMMAND  = 250; //1/4ms 250 = 1000ms
-        private final ObdProtocols PROTOCOL = ObdProtocols.AUTO;
-
-        private boolean isWorking       = true;
-        private boolean stop            = true;
-        private boolean wait            = false;
-        private long    lastRead;
-        private long    lastLoop;
-
-
-        private BluetoothSocket   socket        = null;
-        private List<ObdCommand> commandIO      = new ArrayList<>();
-        private List<String>      lastErrors    = new ArrayList<>();
-        private List<Real_time_charts.DataThread.CommandData> commandData   = new ArrayList<>();
-
-        public DataThread(BluetoothDevice device, List<ObdCommand> commands, List<Integer> periods)
-        {
-            try {
-                socket = device.createInsecureRfcommSocketToServiceRecord(myUUID);
-                socket.connect();
-            } catch (IOException e) {
-                System.out.println(e.getMessage());
-                lastErrors.add(e.getMessage());
-            }
-
-            int i = 0;
-            for (ObdCommand com : commands){
-                commandIO.add(com);
-                commandData.add(new Real_time_charts.DataThread.CommandData(com.getName(),periods.get(i++)));
-            }
-
-            if (socket != null && socket.isConnected())
-            {
-                try {
-                    new EchoOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    new LineFeedOffCommand().run(socket.getInputStream(), socket.getOutputStream());
-                    new TimeoutCommand(TIMEOUT_COMMAND).run(socket.getInputStream(), socket.getOutputStream());
-                    new SelectProtocolCommand(PROTOCOL).run(socket.getInputStream(), socket.getOutputStream());
-                }catch ( ResponseException | IOException | InterruptedException e) {
-                    System.out.println(e.getMessage());
-                    lastErrors.add(e.getMessage());
-                }
-            }
-
-            for (Real_time_charts.DataThread.CommandData com : commandData){
-                com.startTime = System.currentTimeMillis();
-            }
-
-            lastRead = System.currentTimeMillis();
-            lastLoop = System.currentTimeMillis();
-        }
-
-        public void run()
-        {
-            while (isWorking)
-            {
-                while (wait) {
-                    lastRead = System.currentTimeMillis();
-                    if(System.currentTimeMillis() - lastLoop > WAIT_TIME) {
-                        wait = false;
-                        break;
-                    }
-                }
-
-                if(System.currentTimeMillis() - lastLoop > LOOP_PERIOD)
-                {
-                    if (socket != null && socket.isConnected())
-                    {
-                        List<String> dataList = new ArrayList<>();
-
-                        for (ObdCommand com : commandIO) {
-                            try {
-                                com.run(socket.getInputStream(), socket.getOutputStream());
-                                dataList.add(com.getCalculatedResult()); //Formatted->Calculated
-                            } catch (IndexOutOfBoundsException | NonNumericResponseException | ResponseException | IOException | InterruptedException e) {
-                                System.out.println(e.getMessage());
-                                lastErrors.add(e.getMessage());
-                                dataList.add("-1");
-                            }
-                        }
-
-                        int i = 0;
-                        for (Real_time_charts.DataThread.CommandData com : commandData) {
-                            com.currentData = dataList.get(i);
-                            com.lastPickTime = System.currentTimeMillis();
-                            if (com.lastPickTime - com.stopTime >= com.period - PICK_THRESHOLD && !stop) {
-                                com.data.add(com.currentData);
-                                com.stopTime = com.lastPickTime;
-                            }
-                            i++;
-                        }
-
-                        lastRead = System.currentTimeMillis();
-                    }
-                    else {
-                        for (Real_time_charts.DataThread.CommandData com : commandData) {
-                            com.currentData = "-1";
-                            if (System.currentTimeMillis() - com.stopTime >= com.period - PICK_THRESHOLD && !stop) {
-                                com.data.add(com.currentData);
-                                com.stopTime = System.currentTimeMillis();
-                            }
-                        }
-                    }
-                    lastLoop = System.currentTimeMillis();
-                }
-
-            }
-
-            if (socket != null && socket.isConnected()) {
-                try {
-                    socket.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-
-        public void startNewMeasurement()
-        {
-            if(!stop)
-                return;
-
-            for (Real_time_charts.DataThread.CommandData com : commandData){
-                com.clearData();
-            }
-            lastErrors      = new ArrayList<>();
-            stop            = false;
-        }
-
-        public void stopMeasurement()
-        {
-            stop = true;
-        }
-
-        public void resetMeasurement(List<ObdCommand> commands, List<Integer> periods)
-        {
-            wait        = true;
-
-            int i = 0;
-            commandIO    = new ArrayList<>();
-            commandData  = new ArrayList<>();
-            lastErrors   = new ArrayList<>();
-            for (ObdCommand com : commands){
-                commandIO.add(com);
-                commandData.add(new Real_time_charts.DataThread.CommandData(com.getName(),periods.get(i++)));
-            }
-            for (Real_time_charts.DataThread.CommandData com : commandData){
-                com.startTime = System.currentTimeMillis();
-            }
-
-            stop = false;
-        }
-
-        public BluetoothSocket getSocket(){
-            return  socket;
-        }
-
-        public boolean isConnected() {
-            return socket.isConnected();
-        }
-
-        public boolean isThreadLive() {
-            return isWorking;
-        }
-
-        public boolean isMeasurementWorking() {
-            return !wait&&!stop;
-        }
-
-        public boolean isDataReadingWorking() {
-            return !wait&&isConnected();
-        }
-
-        public List<Real_time_charts.DataThread.CommandData> getData(){
-            return commandData;
-        }
-
-        public Real_time_charts.DataThread.CommandData getData(int index){
-            return commandData.get(index);
-        }
-
-        public long getReadTime(){
-            return lastRead;
-        }
-
-        public void turnOff(){
-            isWorking = false;
-        }
-
-        public List<String> getErrors(){
-            return lastErrors;
-        }
-
-        public String getLastError(){
-            return lastErrors.remove(lastErrors.size()-1);
-        }
-
-        static class CommandData
-        {
-            public String           commandName;
-            public List<String>     data;
-            public String           currentData;
-            public int              period;             //ms
-            public long             startTime;
-            public long             stopTime;
-            public long             lastPickTime;
-
-            CommandData(String command, int period)
-            {
-                this.data           = new ArrayList<>();
-                this.commandName    = command;
-                this.startTime      = System.currentTimeMillis();
-                this.stopTime       = System.currentTimeMillis();
-                this.period         = period;
-                this.currentData    = "";
-                this.lastPickTime   = System.currentTimeMillis();
-            }
-
-            public void clearData(){
-                this.data           = new ArrayList<>();
-                this.startTime      = System.currentTimeMillis();
-                this.stopTime       = System.currentTimeMillis();
-            }
-        }
+    public DataThread getMyThread(){
+        return myThread;
     }
 }
