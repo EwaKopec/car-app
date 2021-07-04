@@ -15,4 +15,11 @@ public enum Units
         unit = s;
     }
 
+    public String getUnitSymbol(){
+        return unit;
+    }
+
+    public String getUnitName(){
+        return this.name();
+    }
 }

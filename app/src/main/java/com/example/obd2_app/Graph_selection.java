@@ -160,7 +160,7 @@ public class Graph_selection extends AppCompatActivity implements View.OnClickLi
     private void cleanData(View view)
     {
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-        alertDialogBuilder.setMessage("Are you sure you want to delete all data?");
+        alertDialogBuilder.setMessage("Are you sure you want to delete "+selectedFile.size()+" files?");
                 alertDialogBuilder.setPositiveButton("Yes",
                         new DialogInterface.OnClickListener() {
                             @Override
@@ -187,15 +187,17 @@ public class Graph_selection extends AppCompatActivity implements View.OnClickLi
         String path = getExternalFilesDir(null).getAbsolutePath()+"/Graphs";
         Log.d("Graph-Files", "Delete!");
         Log.d("Graph-Files", "Path: " + path);
-        File directory = new File(path);
-        File[] files = directory.listFiles();
-        if(files != null)
+
+        if(!selectedFile.isEmpty())
         {
-            Log.d("Graph-Files", "Size: " + files.length);
-            for (int i = 0; i < files.length; i++) {
-                Log.d("Graph-Files", "FileName:" + files[i].getName());
-                files[i].delete();
+            for (String file : selectedFile.values())
+            {
+                Log.d("Graph-Files", "Delete File:" + file);
+                File tmp = new File(path,file);
+                if(tmp.exists())
+                    tmp.delete();
             }
+            selectedFile.clear();
         }
     }
 

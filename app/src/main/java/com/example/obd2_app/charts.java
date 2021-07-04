@@ -73,6 +73,8 @@ public class charts extends AppCompatActivity
             List<Entry> entries   = new ArrayList<>();
             List<Float> dataFloat = new ArrayList<>();
 
+            double sum            = 0.0;
+
             for (String i : dat.data) {
                 dataFloat.add(FileUtils.findDigitis(i));
             }
@@ -84,6 +86,7 @@ public class charts extends AppCompatActivity
 
                 if(min>i) min = i;
                 if(max<i) max = i;
+                sum += i;
             }
             if(maxTime < time)
                 maxTime = time;
@@ -94,7 +97,7 @@ public class charts extends AppCompatActivity
             // Will produce only bright / light colours:
             int color = ((int)(Math.random()*16777215)) | (0xFF << 24);
 
-            LineDataSet dataSet = new LineDataSet(entries, simple.format(new Date(dat.startTime))); // add entries to dataset
+            LineDataSet dataSet = new LineDataSet(entries, simple.format(new Date(dat.startTime)) + " (AVG: "+(float)(sum/dataFloat.size())+dat.unit.getUnitSymbol()+" )"); // add entries to dataset
             dataSet.setDrawCircles(false);
             dataSet.setMode(LineDataSet.Mode.STEPPED);
             dataSet.setColor(color);
