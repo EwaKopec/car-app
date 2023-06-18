@@ -20,19 +20,21 @@ import java.util.regex.Pattern;
 
 public class FileUtils
 {
+    public static final String TAG = "File-Utils";
+    public static final String ABSOLUTE_PATH = context.getExternalFilesDir(null).getAbsolutePath();
     public static List<DataThread.CommandData> Load(Context context, ArrayList<String> files, String commandName)
     {
         List<DataThread.CommandData> newData = new ArrayList<>();
 
         for (String file : files)
         {
-            File path = new File(context.getExternalFilesDir(null).getAbsolutePath()+"/Graphs/"+file);
+            File path = new File(ABSOLUTE_PATH+"/Graphs/"+file);
             FileInputStream stream = null;
 
             try {
                 stream = new FileInputStream(path);
             } catch (FileNotFoundException e) {
-                Log.d("File-Utils", "Error: " + e.getMessage());
+                Log.d(TAG, "Error: " + e.getMessage());
                 continue;
             }
 
@@ -62,12 +64,12 @@ public class FileUtils
                 }
 
             } catch (IOException e) {
-                Log.d("File-Utils", "Error: " + e.getMessage());
+                Log.d(TAG, "Error: " + e.getMessage());
             } finally {
                 try {
                     stream.close();
                 } catch (IOException e) {
-                    Log.d("File-Utils", "Error: " + e.getMessage());
+                    Log.d(TAG, "Error: " + e.getMessage());
                 }
             }
         }
@@ -82,7 +84,7 @@ public class FileUtils
         // Creating date format
         DateFormat simple = new SimpleDateFormat("dd MMM yyyy HH:mm:ss Z");
 
-        File path = new File(context.getExternalFilesDir(null).getAbsolutePath()+"/Graphs");
+        File path = new File(ABSOLUTE_PATH+"/Graphs");
         if(!path.exists()) path.mkdir();
         File file = new File(path, simple.format(new Date(CommandList.get(0).startTime)));
         FileOutputStream stream = null;
@@ -90,7 +92,7 @@ public class FileUtils
         try {
             stream = new FileOutputStream(file);
         } catch (FileNotFoundException e) {
-            Log.d("File-Utils", "Error: " + e.getMessage());
+            Log.d(TAG, "Error: " + e.getMessage());
             return false;
         }
 
@@ -119,12 +121,12 @@ public class FileUtils
                 }
             }
         } catch (IOException e) {
-            Log.d("File-Utils", "Error: " + e.getMessage());
+            Log.d(TAG, "Error: " + e.getMessage());
         } finally {
             try {
                 stream.close();
             } catch (IOException e) {
-                Log.d("File-Utils", "Error: " + e.getMessage());
+                Log.d(TAG, "Error: " + e.getMessage());
             }
         }
 
